@@ -26,9 +26,7 @@ func (s *server) PayOrder(
 	ctx context.Context,
 	req *paymentv1.PayOrderRequest,
 ) (*paymentv1.PayOrderResponse, error) {
-
 	_, err := uuid.Parse(req.OrderUuid)
-
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "неверный формат uuid: %s", req.OrderUuid)
 	}
@@ -39,7 +37,8 @@ func (s *server) PayOrder(
 
 	transactionUuid := uuid.New()
 
-	slog.Info("оплата прошла успешно",
+	slog.Info(
+		"оплата прошла успешно",
 		"order_uuid", req.GetOrderUuid(),
 		"transaction_uuid", transactionUuid,
 	)

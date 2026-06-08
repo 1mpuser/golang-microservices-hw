@@ -109,7 +109,6 @@ func (s *server) GetPart(
 	req *inventoryv1.GetPartRequest,
 ) (*inventoryv1.GetPartResponse, error) {
 	uuid, err := uuid.Parse(req.GetUuid())
-
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "неверный формат uuid: %s", req.GetUuid())
 	}
@@ -143,7 +142,6 @@ func (s *server) ListParts(
 	if len(req.Uuids) > 0 {
 		for _, reqUuid := range req.Uuids {
 			uuid, err := uuid.Parse(reqUuid)
-
 			if err != nil {
 				return nil, status.Errorf(codes.InvalidArgument, "неверный формат uuid: %s", reqUuid)
 			}
@@ -172,7 +170,6 @@ func (s *server) ListParts(
 	}
 
 	for _, part := range s.parts {
-
 		if req.PartType == inventoryv1.PartType_PART_TYPE_UNSPECIFIED || req.PartType == part.PartType {
 			parts = append(parts, &inventoryv1.Part{
 				Uuid:          part.UUID,
