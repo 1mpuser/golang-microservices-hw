@@ -1,5 +1,5 @@
-// TODO: Поменяй имя модуля github.com/student на своё и обнови все импорты
-module github.com/student/order
+// TODO: Поменяй имя модуля github.com/1mpuser на своё и обнови все импорты
+module github.com/1mpuser/order
 
 go 1.26.0
 
@@ -25,8 +25,8 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/student/shared => ../shared
+replace github.com/1mpuser/shared => ../shared
 
-replace github.com/student/inventory => ../inventory
+replace github.com/1mpuser/inventory => ../inventory
 
-replace github.com/student/payment => ../payment
+replace github.com/1mpuser/payment => ../payment

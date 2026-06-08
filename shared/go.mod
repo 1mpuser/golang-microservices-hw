@@ -1,5 +1,5 @@
-// TODO: Поменяй имя модуля github.com/student на своё и обнови все импорты
-module github.com/student/shared
+// TODO: Поменяй имя модуля github.com/1mpuser на своё и обнови все импорты
+module github.com/1mpuser/shared
 
 go 1.26.0
 

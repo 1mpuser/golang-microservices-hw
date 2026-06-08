@@ -1,5 +1,5 @@
-// TODO: Поменяй имя модуля github.com/student на своё и обнови все импорты
-module github.com/student/inventory
+// TODO: Поменяй имя модуля github.com/1mpuser на своё и обнови все импорты
+module github.com/1mpuser/inventory
 
 go 1.26.0
 
@@ -18,4 +18,4 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260226221140-a57be14db171 // indirect
 )
 
-replace github.com/student/shared => ../shared
+replace github.com/1mpuser/shared => ../shared
