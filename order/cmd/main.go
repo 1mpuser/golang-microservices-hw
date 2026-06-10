@@ -21,7 +21,7 @@ import (
 const (
 	inventoryServiceAddress = "localhost:50051"
 	paymentServiceAddress   = "localhost:50052"
-	httpAddress             = ":8080"
+	httpAddress             = ":7884"
 
 	grpcKeepaliveTime    = 10 * time.Second
 	grpcKeepaliveTimeout = 3 * time.Second
