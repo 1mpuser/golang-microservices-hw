@@ -13,7 +13,9 @@ import (
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
 
-	inventoryService "github.com/1mpuser/inventory/pkg/service"
+	inventoryAPI "github.com/1mpuser/inventory/internal/api/inventory/v1"
+	partRepository "github.com/1mpuser/inventory/internal/repository/part"
+	partService "github.com/1mpuser/inventory/internal/service/part"
 	inventoryv1 "github.com/1mpuser/shared/pkg/proto/inventory/v1"
 )
 
@@ -51,7 +53,11 @@ func main() {
 		}),
 	)
 
-	inventoryv1.RegisterInventoryServiceServer(grpcServer, inventoryService.NewServer())
+	repo := partRepository.NewRepository()
+	service := partService.NewService(repo)
+	api := inventoryAPI.NewAPI(service)
+
+	inventoryv1.RegisterInventoryServiceServer(grpcServer, api)
 
 	reflection.Register(grpcServer)
 
