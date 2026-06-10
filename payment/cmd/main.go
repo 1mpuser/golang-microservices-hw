@@ -13,7 +13,8 @@ import (
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
 
-	paymentService "github.com/1mpuser/payment/pkg/service"
+	paymentAPI "github.com/1mpuser/payment/internal/api/payment/v1"
+	paymentService "github.com/1mpuser/payment/internal/service/payment"
 	paymentv1 "github.com/1mpuser/shared/pkg/proto/payment/v1"
 )
 
@@ -49,7 +50,10 @@ func main() {
 		}),
 	)
 
-	paymentv1.RegisterPaymentServiceServer(grpcServer, paymentService.NewServer())
+	service := paymentService.NewService()
+	api := paymentAPI.NewApi(service)
+
+	paymentv1.RegisterPaymentServiceServer(grpcServer, api)
 
 	reflection.Register(grpcServer)
 
