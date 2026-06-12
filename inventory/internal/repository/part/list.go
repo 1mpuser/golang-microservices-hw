@@ -3,15 +3,15 @@ package part
 import (
 	"context"
 
+	"github.com/google/uuid"
+
 	errs "github.com/1mpuser/inventory/internal/errors"
 	"github.com/1mpuser/inventory/internal/model"
 	"github.com/1mpuser/inventory/internal/repository/convertor"
 	inventoryv1 "github.com/1mpuser/shared/pkg/proto/inventory/v1"
-	"github.com/google/uuid"
 )
 
 func (r *repository) ListPartsByUuids(_ context.Context, uuids []uuid.UUID) ([]model.Part, error) {
-
 	parts := make([]model.Part, 0, len(uuids))
 
 	r.mu.RLock()
@@ -29,7 +29,6 @@ func (r *repository) ListPartsByUuids(_ context.Context, uuids []uuid.UUID) ([]m
 	}
 
 	return parts, nil
-
 }
 
 func (r *repository) ListPartsByPartType(_ context.Context, partType inventoryv1.PartType) ([]model.Part, error) {
@@ -45,5 +44,4 @@ func (r *repository) ListPartsByPartType(_ context.Context, partType inventoryv1
 	}
 
 	return parts, nil
-
 }

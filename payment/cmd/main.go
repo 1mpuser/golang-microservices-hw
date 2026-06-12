@@ -30,7 +30,7 @@ const (
 )
 
 func main() {
-	lis, err := net.Listen("tcp", grpcAddress)
+	lis, err := (&net.ListenConfig{}).Listen(context.Background(), "tcp", grpcAddress)
 	if err != nil {
 		slog.Error("не удалось создать listener", "error", err)
 		os.Exit(1)

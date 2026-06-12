@@ -3,11 +3,12 @@ package order
 import (
 	"context"
 
+	"github.com/google/uuid"
+
 	"github.com/1mpuser/order/internal/client/grpc/payment/v1/converter"
 	"github.com/1mpuser/order/internal/model"
 	"github.com/1mpuser/order/internal/repository/record"
 	paymentv1 "github.com/1mpuser/shared/pkg/proto/payment/v1"
-	"github.com/google/uuid"
 )
 
 type OrderRepository interface {

@@ -3,9 +3,10 @@ package order
 import (
 	"context"
 
+	"github.com/google/uuid"
+
 	errs "github.com/1mpuser/order/internal/errors"
 	"github.com/1mpuser/order/internal/model"
-	"github.com/google/uuid"
 )
 
 func (r *repository) Pay(_ context.Context, orderId uuid.UUID, paymentMethod model.PaymentMethod, transactionId uuid.UUID) error {

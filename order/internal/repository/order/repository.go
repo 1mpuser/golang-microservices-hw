@@ -3,8 +3,9 @@ package order
 import (
 	"sync"
 
-	"github.com/1mpuser/order/internal/repository/record"
 	"github.com/google/uuid"
+
+	"github.com/1mpuser/order/internal/repository/record"
 )
 
 type repository struct {

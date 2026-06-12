@@ -3,8 +3,9 @@ package record
 import (
 	"time"
 
-	"github.com/1mpuser/order/internal/model"
 	"github.com/google/uuid"
+
+	"github.com/1mpuser/order/internal/model"
 )
 
 type Order struct {

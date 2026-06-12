@@ -52,7 +52,6 @@ func main() {
 		slog.Error("не удалось подключиться к InventoryService", "error", err)
 		os.Exit(1)
 	}
-	defer inventoryConn.Close()
 
 	paymentConn, err := grpc.NewClient(
 		paymentServiceAddress,
@@ -65,9 +64,11 @@ func main() {
 	)
 	if err != nil {
 		slog.Error("не удалось подключиться к PaymentService", "error", err)
+		if closeErr := inventoryConn.Close(); closeErr != nil {
+			slog.Error("ошибка закрытия соединения с InventoryService", "error", closeErr)
+		}
 		os.Exit(1)
 	}
-	defer paymentConn.Close()
 
 	repo := orderRepository.NewRepository()
 	invClient := inventoryClient.New(inventoryv1.NewInventoryServiceClient(inventoryConn))
@@ -79,8 +80,17 @@ func main() {
 	orderServer, err := orderv1.NewServer(api)
 	if err != nil {
 		slog.Error("ошибка создания сервера OpenAPI", "error", err)
+		if closeErr := inventoryConn.Close(); closeErr != nil {
+			slog.Error("ошибка закрытия соединения с InventoryService", "error", closeErr)
+		}
+		if closeErr := paymentConn.Close(); closeErr != nil {
+			slog.Error("ошибка закрытия соединения с PaymentService", "error", closeErr)
+		}
 		os.Exit(1)
 	}
+
+	defer inventoryConn.Close()
+	defer paymentConn.Close()
 
 	httpServer := &http.Server{
 		Addr:              httpAddress,

@@ -1,9 +1,10 @@
 package convertor
 
 import (
+	"google.golang.org/protobuf/types/known/timestamppb"
+
 	"github.com/1mpuser/inventory/internal/model"
 	inventoryv1 "github.com/1mpuser/shared/pkg/proto/inventory/v1"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func PartToDto(part model.Part) *inventoryv1.Part {

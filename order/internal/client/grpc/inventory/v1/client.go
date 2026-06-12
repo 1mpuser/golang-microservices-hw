@@ -3,12 +3,13 @@ package v1
 import (
 	"context"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	"github.com/1mpuser/order/internal/client/grpc/inventory/v1/converter"
 	errs "github.com/1mpuser/order/internal/errors"
 	"github.com/1mpuser/order/internal/model"
 	inventoryv1 "github.com/1mpuser/shared/pkg/proto/inventory/v1"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 type client struct {
@@ -26,7 +27,6 @@ func (c *client) ListParts(ctx context.Context, uuids []string) ([]model.Part, e
 		Uuids:    uuids,
 		PartType: inventoryv1.PartType_PART_TYPE_UNSPECIFIED,
 	})
-
 	if err != nil {
 		if st, ok := status.FromError(err); ok {
 			if st.Code() == codes.NotFound {

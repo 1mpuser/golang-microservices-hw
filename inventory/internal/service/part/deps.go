@@ -3,9 +3,10 @@ package part
 import (
 	"context"
 
+	"github.com/google/uuid"
+
 	"github.com/1mpuser/inventory/internal/model"
 	inventoryv1 "github.com/1mpuser/shared/pkg/proto/inventory/v1"
-	"github.com/google/uuid"
 )
 
 type PartRepository interface {

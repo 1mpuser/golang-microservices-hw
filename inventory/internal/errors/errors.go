@@ -3,6 +3,6 @@ package errs
 import "errors"
 
 var (
-	ErrPartNotFound  = errors.New("Деталь не найдена")
-	ErrInvalidFormat = errors.New("Неверный формат uuid")
+	ErrPartNotFound  = errors.New("деталь не найдена")
+	ErrInvalidFormat = errors.New("неверный формат uuid")
 )

@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/1mpuser/order/internal/converter"
 	errs "github.com/1mpuser/order/internal/errors"
 	"github.com/1mpuser/order/internal/model"
 	repositoryConvertor "github.com/1mpuser/order/internal/repository/converter"
 	"github.com/1mpuser/order/internal/service/input"
-	"github.com/google/uuid"
 )
 
 func (s *service) Create(ctx context.Context, in input.CreateOrderInput) (*converter.CreateModelDto, error) {
@@ -28,7 +29,6 @@ func (s *service) Create(ctx context.Context, in input.CreateOrderInput) (*conve
 	defer cancel()
 
 	parts, err := s.inventoryClient.ListParts(ctx, uuids)
-
 	if err != nil {
 		return nil, fmt.Errorf("получить детали: %w", err)
 	}
@@ -66,7 +66,6 @@ func (s *service) Create(ctx context.Context, in input.CreateOrderInput) (*conve
 	}
 
 	err = s.orderRepository.Create(ctx, repositoryConvertor.ModelToRecord(order))
-
 	if err != nil {
 		return nil, err
 	}
@@ -75,5 +74,4 @@ func (s *service) Create(ctx context.Context, in input.CreateOrderInput) (*conve
 		OrderUUID:  orderUUID,
 		TotalPrice: totalPrice,
 	}, nil
-
 }

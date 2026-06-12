@@ -3,8 +3,9 @@ package record
 import (
 	"time"
 
-	inventoryv1 "github.com/1mpuser/shared/pkg/proto/inventory/v1"
 	"github.com/google/uuid"
+
+	inventoryv1 "github.com/1mpuser/shared/pkg/proto/inventory/v1"
 )
 
 type Part struct {

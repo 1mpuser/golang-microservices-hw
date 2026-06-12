@@ -4,14 +4,14 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/google/uuid"
+
 	errs "github.com/1mpuser/payment/internal/errors"
 	"github.com/1mpuser/payment/internal/model"
-	"github.com/google/uuid"
 )
 
 func (s *service) Pay(ctx context.Context, payRequest model.PayRequest) (string, error) {
 	_, err := uuid.Parse(payRequest.OrderUUID)
-
 	if err != nil {
 		return "", errs.ErrInvalidOrderUUID
 	}
@@ -29,5 +29,4 @@ func (s *service) Pay(ctx context.Context, payRequest model.PayRequest) (string,
 	)
 
 	return transactionUuid.String(), nil
-
 }
