@@ -13,7 +13,12 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/keepalive"
 
-	orderHandler "github.com/1mpuser/order/pkg/handler"
+	orderapi "github.com/1mpuser/order/internal/api/order/v1"
+	inventoryclient "github.com/1mpuser/order/internal/client/grpc/inventory/v1"
+	paymentclient "github.com/1mpuser/order/internal/client/grpc/payment/v1"
+	orderrepository "github.com/1mpuser/order/internal/repository/order"
+	orderservice "github.com/1mpuser/order/internal/service/order"
+	orderv1 "github.com/1mpuser/shared/pkg/openapi/order/v1"
 	inventoryv1 "github.com/1mpuser/shared/pkg/proto/inventory/v1"
 	paymentv1 "github.com/1mpuser/shared/pkg/proto/payment/v1"
 )
@@ -64,14 +69,14 @@ func main() {
 	}
 	defer paymentConn.Close()
 
-	store := orderHandler.NewOrderStore()
-	h := orderHandler.NewHandler(
-		inventoryv1.NewInventoryServiceClient(inventoryConn),
-		paymentv1.NewPaymentServiceClient(paymentConn),
-		store,
-	)
+	repo := orderrepository.NewRepository()
+	inventoryClient := inventoryclient.New(inventoryv1.NewInventoryServiceClient(inventoryConn))
+	paymentClient := paymentclient.New(paymentv1.NewPaymentServiceClient(paymentConn))
 
-	orderServer, err := orderHandler.SetupServer(h)
+	svc := orderservice.NewService(repo, inventoryClient, paymentClient)
+	api := orderapi.NewAPI(svc)
+
+	orderServer, err := orderv1.NewServer(api)
 	if err != nil {
 		slog.Error("ошибка создания сервера OpenAPI", "error", err)
 		os.Exit(1)
