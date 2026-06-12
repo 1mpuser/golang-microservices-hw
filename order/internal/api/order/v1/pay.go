@@ -21,6 +21,8 @@ func (a *api) PayOrder(ctx context.Context, req *orderv1.PayOrderRequest, params
 			return &orderv1.PayOrderNotFound{Code: http.StatusNotFound, Message: err.Error()}, nil
 		case errors.Is(err, errs.ErrOrderAlreadyPaid), errors.Is(err, errs.ErrOrderCancelled):
 			return &orderv1.PayOrderConflict{Code: http.StatusConflict, Message: err.Error()}, nil
+		case errors.Is(err, errs.ErrInvalidPaymentMethod):
+			return &orderv1.PayOrderBadRequest{Code: http.StatusBadRequest, Message: err.Error()}, nil
 		default:
 			return nil, err
 		}

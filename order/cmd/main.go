@@ -13,11 +13,11 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/keepalive"
 
-	orderapi "github.com/1mpuser/order/internal/api/order/v1"
-	inventoryclient "github.com/1mpuser/order/internal/client/grpc/inventory/v1"
-	paymentclient "github.com/1mpuser/order/internal/client/grpc/payment/v1"
-	orderrepository "github.com/1mpuser/order/internal/repository/order"
-	orderservice "github.com/1mpuser/order/internal/service/order"
+	orderAPI "github.com/1mpuser/order/internal/api/order/v1"
+	inventoryClient "github.com/1mpuser/order/internal/client/grpc/inventory/v1"
+	paymentClient "github.com/1mpuser/order/internal/client/grpc/payment/v1"
+	orderRepository "github.com/1mpuser/order/internal/repository/order"
+	orderService "github.com/1mpuser/order/internal/service/order"
 	orderv1 "github.com/1mpuser/shared/pkg/openapi/order/v1"
 	inventoryv1 "github.com/1mpuser/shared/pkg/proto/inventory/v1"
 	paymentv1 "github.com/1mpuser/shared/pkg/proto/payment/v1"
@@ -69,12 +69,12 @@ func main() {
 	}
 	defer paymentConn.Close()
 
-	repo := orderrepository.NewRepository()
-	inventoryClient := inventoryclient.New(inventoryv1.NewInventoryServiceClient(inventoryConn))
-	paymentClient := paymentclient.New(paymentv1.NewPaymentServiceClient(paymentConn))
+	repo := orderRepository.NewRepository()
+	invClient := inventoryClient.New(inventoryv1.NewInventoryServiceClient(inventoryConn))
+	payClient := paymentClient.New(paymentv1.NewPaymentServiceClient(paymentConn))
 
-	svc := orderservice.NewService(repo, inventoryClient, paymentClient)
-	api := orderapi.NewAPI(svc)
+	svc := orderService.NewService(repo, invClient, payClient)
+	api := orderAPI.NewAPI(svc)
 
 	orderServer, err := orderv1.NewServer(api)
 	if err != nil {

@@ -2,6 +2,7 @@ package order
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/1mpuser/order/internal/converter"
@@ -29,7 +30,7 @@ func (s *service) Create(ctx context.Context, in input.CreateOrderInput) (*conve
 	parts, err := s.inventoryClient.ListParts(ctx, uuids)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("получить детали: %w", err)
 	}
 
 	if len(parts) == 0 {

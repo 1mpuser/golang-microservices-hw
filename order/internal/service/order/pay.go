@@ -24,8 +24,11 @@ func (s *service) Pay(ctx context.Context, orderUuid string, paymentMethod payme
 		return nil, errs.ErrOrderNotFound
 	}
 
-	if order.Status != model.OrderStatusPendingPayment {
+	switch order.Status {
+	case model.OrderStatusPaid:
 		return nil, errs.ErrOrderAlreadyPaid
+	case model.OrderStatusCancelled:
+		return nil, errs.ErrOrderCancelled
 	}
 
 	transaction, err := s.paymentClient.PayOrder(ctx, orderUuid, paymentMethod)

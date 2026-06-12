@@ -10,4 +10,6 @@ var (
 	ErrOutOfStock             = errors.New("деталь отсутствует на складе")
 	ErrInventoryUnavailable   = errors.New("сервис склада недоступен")
 	ErrInventoryPartsNotFound = errors.New("на складе не найдены детали")
+	ErrInvalidUUID            = errors.New("неверный формат UUID")
+	ErrInvalidPaymentMethod   = errors.New("неверный метод оплаты")
 )

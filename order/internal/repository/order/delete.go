@@ -20,8 +20,11 @@ func (r *repository) Delete(_ context.Context, orderUuid uuid.UUID) error {
 
 	r.mu.RUnlock()
 
-	if order.Status != model.OrderStatusPendingPayment {
+	switch order.Status {
+	case model.OrderStatusPaid:
 		return errs.ErrOrderAlreadyPaid
+	case model.OrderStatusCancelled:
+		return errs.ErrOrderCancelled
 	}
 
 	r.mu.Lock()

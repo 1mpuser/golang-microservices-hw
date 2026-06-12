@@ -14,11 +14,14 @@ import (
 func (a *api) GetOrder(ctx context.Context, params orderv1.GetOrderParams) (orderv1.GetOrderRes, error) {
 	order, err := a.orderService.Get(ctx, params.OrderUUID.String())
 	if err != nil {
-		if errors.Is(err, errs.ErrOrderNotFound) {
+		switch {
+		case errors.Is(err, errs.ErrOrderNotFound):
 			return &orderv1.GetOrderNotFound{Code: http.StatusNotFound, Message: err.Error()}, nil
+		case errors.Is(err, errs.ErrInvalidUUID):
+			return &orderv1.GetOrderBadRequest{Code: http.StatusBadRequest, Message: err.Error()}, nil
+		default:
+			return nil, err
 		}
-
-		return nil, err
 	}
 
 	return converter.OrderToDTO(order), nil

@@ -2,9 +2,13 @@ package v1
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/1mpuser/order/internal/client/grpc/payment/v1/converter"
+	errs "github.com/1mpuser/order/internal/errors"
 	paymentv1 "github.com/1mpuser/shared/pkg/proto/payment/v1"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type client struct {
@@ -24,7 +28,13 @@ func (c *client) PayOrder(ctx context.Context, orderId string, paymentMethod pay
 	})
 
 	if err != nil {
-		return nil, err
+		if st, ok := status.FromError(err); ok {
+			if st.Code() == codes.InvalidArgument {
+				return nil, errs.ErrInvalidPaymentMethod
+			}
+		}
+
+		return nil, fmt.Errorf("оплатить заказ: %w", err)
 	}
 
 	return converter.DTOToModel(resp.TransactionUuid), nil
