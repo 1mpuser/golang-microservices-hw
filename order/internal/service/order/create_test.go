@@ -133,10 +133,18 @@ func TestCreate(t *testing.T) {
 			orderRepo := mocks.NewOrderRepository(t)
 			inventoryClient := mocks.NewInventoryClient(t)
 			paymentClient := mocks.NewPaymentClient(t)
+			txManager := mocks.NewTxManager(t)
+
+			txManager.EXPECT().
+				Do(mock.Anything, mock.Anything).
+				RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+					return fn(ctx)
+				}).
+				Maybe()
 
 			tc.setupMock(orderRepo, inventoryClient)
 
-			svc := orderService.NewService(orderRepo, inventoryClient, paymentClient)
+			svc := orderService.NewService(txManager, orderRepo, inventoryClient, paymentClient)
 			result, err := svc.Create(ctx, tc.in)
 
 			if tc.wantErr != nil {

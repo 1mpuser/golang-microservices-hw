@@ -83,10 +83,11 @@ func TestCancel(t *testing.T) {
 			orderRepo := mocks.NewOrderRepository(t)
 			inventoryClient := mocks.NewInventoryClient(t)
 			paymentClient := mocks.NewPaymentClient(t)
+			txManager := mocks.NewTxManager(t)
 
 			tc.setupMock(orderRepo)
 
-			svc := orderService.NewService(orderRepo, inventoryClient, paymentClient)
+			svc := orderService.NewService(txManager, orderRepo, inventoryClient, paymentClient)
 			err := svc.Cancel(ctx, tc.orderUUID)
 
 			if tc.wantErr != nil {

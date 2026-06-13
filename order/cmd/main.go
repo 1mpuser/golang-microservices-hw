@@ -21,6 +21,8 @@ import (
 	orderv1 "github.com/1mpuser/shared/pkg/openapi/order/v1"
 	inventoryv1 "github.com/1mpuser/shared/pkg/proto/inventory/v1"
 	paymentv1 "github.com/1mpuser/shared/pkg/proto/payment/v1"
+	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
+	"github.com/avito-tech/go-transaction-manager/trm/v2/manager"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -86,12 +88,21 @@ func main() {
 
 	defer pool.Close()
 
-	repo := orderRepository.NewRepository(pool)
+	txManager, err := manager.New(trmpgx.NewDefaultFactory(pool))
+
+	if err != nil {
+		slog.Error("ошибка создания менеджера транзакций", "error", err)
+		os.Exit(1)
+	}
+
+	txGetter := trmpgx.DefaultCtxGetter
+
+	repo := orderRepository.NewRepository(pool, txGetter)
 
 	invClient := inventoryClient.New(inventoryv1.NewInventoryServiceClient(inventoryConn))
 	payClient := paymentClient.New(paymentv1.NewPaymentServiceClient(paymentConn))
 
-	svc := orderService.NewService(repo, invClient, payClient)
+	svc := orderService.NewService(txManager, repo, invClient, payClient)
 	api := orderAPI.NewAPI(svc)
 
 	orderServer, err := orderv1.NewServer(api)

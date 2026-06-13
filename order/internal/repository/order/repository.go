@@ -1,15 +1,18 @@
 package order
 
 import (
+	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type repository struct {
-	pool *pgxpool.Pool
+	pool     *pgxpool.Pool
+	txGetter *trmpgx.CtxGetter
 }
 
-func NewRepository(pool *pgxpool.Pool) *repository {
+func NewRepository(pool *pgxpool.Pool, txGetter *trmpgx.CtxGetter) *repository {
 	return &repository{
-		pool: pool,
+		pool:     pool,
+		txGetter: txGetter,
 	}
 }

@@ -11,6 +11,10 @@ import (
 	paymentv1 "github.com/1mpuser/shared/pkg/proto/payment/v1"
 )
 
+type TxManager interface {
+	Do(ctx context.Context, fn func(ctx context.Context) error) error
+}
+
 type OrderRepository interface {
 	Create(_ context.Context, order record.Order, orderItems []record.OrderItem) error
 	Pay(_ context.Context, orderId uuid.UUID, paymentMethod model.PaymentMethod, transactionId uuid.UUID) error

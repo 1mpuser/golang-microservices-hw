@@ -10,12 +10,14 @@ import (
 )
 
 func (r *repository) Create(ctx context.Context, order record.Order, orderItems []record.OrderItem) error {
+	conn := r.txGetter.DefaultTrOrDB(ctx, r.pool)
+
 	const insertOrderQuery = `
 		INSERT INTO orders (uuid, total_price, status, transaction_uuid, payment_method, created_at)
 		VALUES ($1, $2, $3, $4, $5, $6)
 	`
 
-	_, err := r.pool.Exec(ctx, insertOrderQuery,
+	_, err := conn.Exec(ctx, insertOrderQuery,
 		order.OrderUUID,
 		order.TotalPrice,
 		order.Status,
@@ -46,7 +48,7 @@ func (r *repository) Create(ctx context.Context, order record.Order, orderItems 
 		SELECT * FROM unnest($1::uuid[], $2::uuid[], $3::text[], $4::bigint[], $5::timestamp[])
 	`
 
-	_, err = r.pool.Exec(ctx, insertItemsQuery, orderUUIDs, partUUIDs, partTypes, prices, createdAts)
+	_, err = conn.Exec(ctx, insertItemsQuery, orderUUIDs, partUUIDs, partTypes, prices, createdAts)
 
 	return err
 }

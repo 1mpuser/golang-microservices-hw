@@ -79,7 +79,10 @@ func (s *service) Create(ctx context.Context, in input.CreateOrderInput) (*conve
 		order.WeaponUUID = in.WeaponUUID
 	}
 
-	err = s.orderRepository.Create(ctx, repositoryConvertor.ModelToRecord(order), orderItems)
+	err = s.txManager.Do(ctx, func(ctx context.Context) error {
+		return s.orderRepository.Create(ctx, repositoryConvertor.ModelToRecord(order), orderItems)
+	})
+
 	if err != nil {
 		return nil, err
 	}

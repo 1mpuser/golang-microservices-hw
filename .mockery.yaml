@@ -33,7 +33,7 @@ packages:
       include-interface-regex: ".*Service"
   github.com/1mpuser/order/internal/service/order:
     config:
-      include-interface-regex: ".*(Repository|Client)"
+      include-interface-regex: ".*(Repository|Client|TxManager)"
 
   # Inventory service
   github.com/1mpuser/inventory/internal/api/inventory/v1:
