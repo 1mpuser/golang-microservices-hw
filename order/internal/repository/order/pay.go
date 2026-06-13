@@ -5,27 +5,13 @@ import (
 
 	"github.com/google/uuid"
 
-	errs "github.com/1mpuser/order/internal/errors"
 	"github.com/1mpuser/order/internal/model"
 )
 
-func (r *repository) Pay(_ context.Context, orderId uuid.UUID, paymentMethod model.PaymentMethod, transactionId uuid.UUID) error {
-	r.mu.Lock()
-	defer r.mu.Unlock()
+func (r *repository) Pay(ctx context.Context, orderId uuid.UUID, paymentMethod model.PaymentMethod, transactionId uuid.UUID) error {
+	const query = "UPDATE orders SET payment_method = $1, transaction_uuid = $2 WHERE uuid = $3"
 
-	order, ok := r.data[orderId]
+	_, err := r.pool.Exec(ctx, query, paymentMethod, transactionId, orderId)
 
-	if !ok {
-		return errs.ErrPartNotFound
-	}
-
-	order.Status = model.OrderStatusPaid
-
-	order.PaymentMethod = &paymentMethod
-
-	order.TransactionUUID = new(transactionId)
-
-	r.data[orderId] = order
-
-	return nil
+	return err
 }

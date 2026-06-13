@@ -13,7 +13,7 @@ import (
 )
 
 func (a *api) List(ctx context.Context, req *inventoryv1.ListPartsRequest) (*inventoryv1.ListPartsResponse, error) {
-	parts, err := a.partService.List(ctx, req.Uuids, req.PartType)
+	parts, err := a.partService.List(ctx, req.Uuids, convertor.PartTypeFromProto(req.PartType))
 	if err != nil {
 		if errors.Is(err, errs.ErrPartNotFound) {
 			return nil, status.Errorf(codes.NotFound, "детали не найдена с id: %s", req.GetUuids())

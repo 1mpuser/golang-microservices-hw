@@ -11,6 +11,7 @@ import (
 	errs "github.com/1mpuser/order/internal/errors"
 	"github.com/1mpuser/order/internal/model"
 	repositoryConvertor "github.com/1mpuser/order/internal/repository/converter"
+	"github.com/1mpuser/order/internal/repository/record"
 	"github.com/1mpuser/order/internal/service/input"
 )
 
@@ -29,6 +30,7 @@ func (s *service) Create(ctx context.Context, in input.CreateOrderInput) (*conve
 	defer cancel()
 
 	parts, err := s.inventoryClient.ListParts(ctx, uuids)
+
 	if err != nil {
 		return nil, fmt.Errorf("получить детали: %w", err)
 	}
@@ -39,15 +41,27 @@ func (s *service) Create(ctx context.Context, in input.CreateOrderInput) (*conve
 
 	var totalPrice int64 = 0
 
+	orderUUID := uuid.New()
+
+	orderItems := make([]record.OrderItem, 0)
+
+	now := time.Now()
+
 	for _, part := range parts {
 		if part.StockQuantity == 0 {
 			return nil, errs.ErrOutOfStock
 		}
 
+		orderItems = append(orderItems, record.OrderItem{
+			OrderUUID: orderUUID,
+			PartUUID:  uuid.MustParse(part.UUID),
+			PartType:  part.PartType,
+			Price:     part.Price,
+			CreatedAt: now,
+		})
+
 		totalPrice += part.Price
 	}
-
-	orderUUID := uuid.New()
 
 	order := model.Order{
 		OrderUUID:  orderUUID,
@@ -65,7 +79,7 @@ func (s *service) Create(ctx context.Context, in input.CreateOrderInput) (*conve
 		order.WeaponUUID = in.WeaponUUID
 	}
 
-	err = s.orderRepository.Create(ctx, repositoryConvertor.ModelToRecord(order))
+	err = s.orderRepository.Create(ctx, repositoryConvertor.ModelToRecord(order), orderItems)
 	if err != nil {
 		return nil, err
 	}

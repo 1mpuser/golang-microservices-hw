@@ -10,8 +10,8 @@ package mocks
 import (
 	"context"
 
+	"github.com/1mpuser/inventory/internal/model"
 	"github.com/1mpuser/inventory/internal/repository/record"
-	"github.com/1mpuser/shared/pkg/proto/inventory/v1"
 	"github.com/google/uuid"
 	mock "github.com/stretchr/testify/mock"
 )
@@ -172,7 +172,7 @@ func (_c *PartRepository_ListAllParts_Call) RunAndReturn(run func(ctx context.Co
 }
 
 // ListPartsByPartType provides a mock function for the type PartRepository
-func (_mock *PartRepository) ListPartsByPartType(ctx context.Context, partType inventoryv1.PartType) ([]record.Part, error) {
+func (_mock *PartRepository) ListPartsByPartType(ctx context.Context, partType model.PartType) ([]record.Part, error) {
 	ret := _mock.Called(ctx, partType)
 
 	if len(ret) == 0 {
@@ -181,17 +181,17 @@ func (_mock *PartRepository) ListPartsByPartType(ctx context.Context, partType i
 
 	var r0 []record.Part
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, inventoryv1.PartType) ([]record.Part, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, model.PartType) ([]record.Part, error)); ok {
 		return returnFunc(ctx, partType)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, inventoryv1.PartType) []record.Part); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, model.PartType) []record.Part); ok {
 		r0 = returnFunc(ctx, partType)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]record.Part)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, inventoryv1.PartType) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, model.PartType) error); ok {
 		r1 = returnFunc(ctx, partType)
 	} else {
 		r1 = ret.Error(1)
@@ -206,20 +206,20 @@ type PartRepository_ListPartsByPartType_Call struct {
 
 // ListPartsByPartType is a helper method to define mock.On call
 //   - ctx context.Context
-//   - partType inventoryv1.PartType
+//   - partType model.PartType
 func (_e *PartRepository_Expecter) ListPartsByPartType(ctx interface{}, partType interface{}) *PartRepository_ListPartsByPartType_Call {
 	return &PartRepository_ListPartsByPartType_Call{Call: _e.mock.On("ListPartsByPartType", ctx, partType)}
 }
 
-func (_c *PartRepository_ListPartsByPartType_Call) Run(run func(ctx context.Context, partType inventoryv1.PartType)) *PartRepository_ListPartsByPartType_Call {
+func (_c *PartRepository_ListPartsByPartType_Call) Run(run func(ctx context.Context, partType model.PartType)) *PartRepository_ListPartsByPartType_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 inventoryv1.PartType
+		var arg1 model.PartType
 		if args[1] != nil {
-			arg1 = args[1].(inventoryv1.PartType)
+			arg1 = args[1].(model.PartType)
 		}
 		run(
 			arg0,
@@ -234,7 +234,7 @@ func (_c *PartRepository_ListPartsByPartType_Call) Return(parts []record.Part, e
 	return _c
 }
 
-func (_c *PartRepository_ListPartsByPartType_Call) RunAndReturn(run func(ctx context.Context, partType inventoryv1.PartType) ([]record.Part, error)) *PartRepository_ListPartsByPartType_Call {
+func (_c *PartRepository_ListPartsByPartType_Call) RunAndReturn(run func(ctx context.Context, partType model.PartType) ([]record.Part, error)) *PartRepository_ListPartsByPartType_Call {
 	_c.Call.Return(run)
 	return _c
 }

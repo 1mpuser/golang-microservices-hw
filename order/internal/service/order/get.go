@@ -21,5 +21,5 @@ func (s *service) Get(ctx context.Context, orderId string) (model.Order, error) 
 		return model.Order{}, err
 	}
 
-	return converter.RecordToModel(order), nil
+	return converter.RecordToModel(*order), nil
 }

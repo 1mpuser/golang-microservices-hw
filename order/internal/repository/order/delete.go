@@ -6,34 +6,24 @@ import (
 	"github.com/google/uuid"
 
 	errs "github.com/1mpuser/order/internal/errors"
-	"github.com/1mpuser/order/internal/model"
 )
 
-func (r *repository) Delete(_ context.Context, orderUuid uuid.UUID) error {
-	r.mu.RLock()
+func (r *repository) Delete(ctx context.Context, orderUuid uuid.UUID) error {
+	const deleteOrderQuery = "DELETE FROM orders WHERE uuid = $1"
 
-	order, ok := r.data[orderUuid]
+	const deleteOrderItemsQuery = "DELETE from order_items WHERE order_uuid = $1"
 
-	if !ok {
-		r.mu.RUnlock()
+	_, err := r.pool.Exec(ctx, deleteOrderQuery, orderUuid)
+
+	if err != nil {
 		return errs.ErrOrderNotFound
 	}
 
-	r.mu.RUnlock()
+	_, err = r.pool.Exec(ctx, deleteOrderItemsQuery, orderUuid)
 
-	switch order.Status {
-	case model.OrderStatusPaid:
-		return errs.ErrOrderAlreadyPaid
-	case model.OrderStatusCancelled:
-		return errs.ErrOrderCancelled
+	if err != nil {
+		return errs.ErrOrderNotFound
 	}
-
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
-	order.Status = model.OrderStatusCancelled
-
-	r.data[order.OrderUUID] = order
 
 	return nil
 }

@@ -9,14 +9,14 @@ import (
 )
 
 type Order struct {
-	OrderUUID       uuid.UUID
-	HullUUID        uuid.UUID
-	EngineUUID      uuid.UUID
-	ShieldUUID      *uuid.UUID // опциональный
-	WeaponUUID      *uuid.UUID // опциональный
-	TotalPrice      int64      // в копейках
-	TransactionUUID *uuid.UUID
-	PaymentMethod   *model.PaymentMethod
+	OrderUUID       uuid.UUID            `db:"uuid"`
+	HullUUID        uuid.UUID            `db:"hull_uuid"`
+	EngineUUID      uuid.UUID            `db:"engine_uuid"`
+	ShieldUUID      *uuid.UUID           `db:"shield_uuid"` // опциональный
+	WeaponUUID      *uuid.UUID           `db:"weapon_uuid"` // опциональный
+	TotalPrice      int64                `db:"total_price"` // в копейках
+	TransactionUUID *uuid.UUID           `db:"transaction_uuid"`
+	PaymentMethod   *model.PaymentMethod `db:"payment_method"`
 	Status          model.OrderStatus
-	CreatedAt       time.Time
+	CreatedAt       time.Time `db:"created_at"`
 }

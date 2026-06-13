@@ -11,10 +11,9 @@ import (
 	"github.com/1mpuser/inventory/internal/model"
 	"github.com/1mpuser/inventory/internal/repository/convertor"
 	"github.com/1mpuser/inventory/internal/repository/record"
-	inventoryv1 "github.com/1mpuser/shared/pkg/proto/inventory/v1"
 )
 
-func (s *service) List(ctx context.Context, uuids []string, partType inventoryv1.PartType) ([]model.Part, error) {
+func (s *service) List(ctx context.Context, uuids []string, partType model.PartType) ([]model.Part, error) {
 	if len(uuids) > 0 {
 		uuidsChecked := make([]uuid.UUID, 0, len(uuids))
 
@@ -46,7 +45,7 @@ func (s *service) List(ctx context.Context, uuids []string, partType inventoryv1
 	var parts []record.Part
 	var err error
 
-	if partType == inventoryv1.PartType_PART_TYPE_UNSPECIFIED {
+	if partType == model.PartTypeUnspecified {
 		parts, err = s.partRepository.ListAllParts(ctx)
 
 		if err != nil {

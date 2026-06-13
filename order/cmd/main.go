@@ -21,6 +21,7 @@ import (
 	orderv1 "github.com/1mpuser/shared/pkg/openapi/order/v1"
 	inventoryv1 "github.com/1mpuser/shared/pkg/proto/inventory/v1"
 	paymentv1 "github.com/1mpuser/shared/pkg/proto/payment/v1"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 const (
@@ -70,7 +71,23 @@ func main() {
 		os.Exit(1)
 	}
 
-	repo := orderRepository.NewRepository()
+	dbUri := os.Getenv("DB_URI")
+
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	pool, err := pgxpool.New(ctx, dbUri)
+
+	if err != nil {
+		slog.Error("не удалось подключиться к базе данных", "error", err)
+
+		os.Exit(1)
+	}
+
+	defer pool.Close()
+
+	repo := orderRepository.NewRepository(pool)
+
 	invClient := inventoryClient.New(inventoryv1.NewInventoryServiceClient(inventoryConn))
 	payClient := paymentClient.New(paymentv1.NewPaymentServiceClient(paymentConn))
 
@@ -100,9 +117,6 @@ func main() {
 		WriteTimeout:      httpWriteTimeout,
 		IdleTimeout:       httpIdleTimeout,
 	}
-
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
-	defer stop()
 
 	go func() {
 		slog.Info("запуск OrderService", "адрес", httpAddress)

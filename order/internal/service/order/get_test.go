@@ -48,7 +48,7 @@ func TestGet(t *testing.T) {
 			setupMock: func(repo *mocks.OrderRepository) {
 				repo.EXPECT().
 					Get(mock.Anything, orderUUID).
-					Return(orderRecord, nil)
+					Return(&orderRecord, nil)
 			},
 			wantErr: nil,
 		},
@@ -64,7 +64,7 @@ func TestGet(t *testing.T) {
 			setupMock: func(repo *mocks.OrderRepository) {
 				repo.EXPECT().
 					Get(mock.Anything, orderUUID).
-					Return(record.Order{}, errs.ErrOrderNotFound)
+					Return(nil, errs.ErrOrderNotFound)
 			},
 			wantErr: errs.ErrOrderNotFound,
 		},
@@ -74,7 +74,7 @@ func TestGet(t *testing.T) {
 			setupMock: func(repo *mocks.OrderRepository) {
 				repo.EXPECT().
 					Get(mock.Anything, orderUUID).
-					Return(record.Order{}, errRepo)
+					Return(nil, errRepo)
 			},
 			wantErr: errRepo,
 		},

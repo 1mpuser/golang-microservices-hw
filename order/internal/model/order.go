@@ -23,6 +23,15 @@ const (
 	OrderStatusCancelled      OrderStatus = "CANCELLED"
 )
 
+type PartType string
+
+const (
+	PartTypeHull   PartType = "HULL"
+	PartTypeEngine PartType = "ENGINE"
+	PartTypeShield PartType = "SHIELD"
+	PartTypeWeapon PartType = "WEAPON"
+)
+
 type Order struct {
 	OrderUUID       uuid.UUID
 	HullUUID        uuid.UUID
@@ -34,4 +43,12 @@ type Order struct {
 	PaymentMethod   *PaymentMethod
 	Status          OrderStatus
 	CreatedAt       time.Time
+}
+
+type OrderItem struct {
+	OrderUUID uuid.UUID
+	PartUUID  uuid.UUID
+	PartType  PartType
+	Price     int64
+	CreatedAt time.Time
 }

@@ -1,20 +1,15 @@
 package order
 
 import (
-	"sync"
-
-	"github.com/google/uuid"
-
-	"github.com/1mpuser/order/internal/repository/record"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type repository struct {
-	data map[uuid.UUID]record.Order
-	mu   sync.RWMutex
+	pool *pgxpool.Pool
 }
 
-func NewRepository() *repository {
+func NewRepository(pool *pgxpool.Pool) *repository {
 	return &repository{
-		data: make(map[uuid.UUID]record.Order),
+		pool: pool,
 	}
 }

@@ -6,8 +6,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 
+	"github.com/1mpuser/inventory/internal/model"
 	"github.com/1mpuser/inventory/internal/repository/record"
-	inventoryv1 "github.com/1mpuser/shared/pkg/proto/inventory/v1"
 )
 
 func (r *repository) ListPartsByUuids(ctx context.Context, uuids []uuid.UUID) ([]record.Part, error) {
@@ -29,7 +29,7 @@ func (r *repository) ListPartsByUuids(ctx context.Context, uuids []uuid.UUID) ([
 	return parts, nil
 }
 
-func (r *repository) ListPartsByPartType(ctx context.Context, partType inventoryv1.PartType) ([]record.Part, error) {
+func (r *repository) ListPartsByPartType(ctx context.Context, partType model.PartType) ([]record.Part, error) {
 
 	const query = "SELECT * FROM parts where part_type = $1"
 

@@ -16,7 +16,6 @@ import (
 	"github.com/1mpuser/order/internal/service/input"
 	orderService "github.com/1mpuser/order/internal/service/order"
 	"github.com/1mpuser/order/internal/service/order/mocks"
-	inventoryv1 "github.com/1mpuser/shared/pkg/proto/inventory/v1"
 )
 
 func TestCreate(t *testing.T) {
@@ -31,13 +30,13 @@ func TestCreate(t *testing.T) {
 		errRepo = errors.New("ошибка хранилища")
 
 		partsInStock = []model.Part{
-			{UUID: hullUUID.String(), Name: "Hull", Price: 500000, PartType: inventoryv1.PartType_PART_TYPE_HULL, StockQuantity: 10},
-			{UUID: engineUUID.String(), Name: "Engine", Price: 300000, PartType: inventoryv1.PartType_PART_TYPE_ENGINE, StockQuantity: 5},
+			{UUID: hullUUID.String(), Name: "Hull", Price: 500000, PartType: model.PartTypeHull, StockQuantity: 10},
+			{UUID: engineUUID.String(), Name: "Engine", Price: 300000, PartType: model.PartTypeEngine, StockQuantity: 5},
 		}
 
 		partsOutOfStock = []model.Part{
-			{UUID: hullUUID.String(), Name: "Hull", Price: 500000, PartType: inventoryv1.PartType_PART_TYPE_HULL, StockQuantity: 10},
-			{UUID: engineUUID.String(), Name: "Engine", Price: 300000, PartType: inventoryv1.PartType_PART_TYPE_ENGINE, StockQuantity: 0},
+			{UUID: hullUUID.String(), Name: "Hull", Price: 500000, PartType: model.PartTypeHull, StockQuantity: 10},
+			{UUID: engineUUID.String(), Name: "Engine", Price: 300000, PartType: model.PartTypeEngine, StockQuantity: 0},
 		}
 	)
 
@@ -64,7 +63,7 @@ func TestCreate(t *testing.T) {
 							o.EngineUUID == engineUUID &&
 							o.TotalPrice == 800000 &&
 							o.Status == model.OrderStatusPendingPayment
-					})).
+					}), mock.Anything).
 					Return(nil)
 			},
 			wantErr: nil,
@@ -120,7 +119,7 @@ func TestCreate(t *testing.T) {
 					Return(partsInStock, nil)
 
 				repo.EXPECT().
-					Create(mock.Anything, mock.Anything).
+					Create(mock.Anything, mock.Anything, mock.Anything).
 					Return(errRepo)
 			},
 			wantErr: errRepo,

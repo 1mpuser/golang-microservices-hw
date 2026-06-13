@@ -11,10 +11,10 @@ import (
 	"github.com/stretchr/testify/require"
 
 	errs "github.com/1mpuser/inventory/internal/errors"
+	"github.com/1mpuser/inventory/internal/model"
 	"github.com/1mpuser/inventory/internal/repository/record"
 	partService "github.com/1mpuser/inventory/internal/service/part"
 	"github.com/1mpuser/inventory/internal/service/part/mocks"
-	inventoryv1 "github.com/1mpuser/shared/pkg/proto/inventory/v1"
 )
 
 func TestList(t *testing.T) {
@@ -31,20 +31,20 @@ func TestList(t *testing.T) {
 		hullPart = record.Part{
 			UUID:     hullUUID,
 			Name:     "Титановый корпус",
-			PartType: inventoryv1.PartType_PART_TYPE_HULL,
+			PartType: model.PartTypeHull,
 		}
 
 		enginePart = record.Part{
 			UUID:     engineUUID,
 			Name:     "Алюминиевый корпус",
-			PartType: inventoryv1.PartType_PART_TYPE_HULL,
+			PartType: model.PartTypeHull,
 		}
 	)
 
 	tests := []struct {
 		name      string
 		uuids     []string
-		partType  inventoryv1.PartType
+		partType  model.PartType
 		setupMock func(repo *mocks.PartRepository)
 		wantErr   error
 		wantNames []string
@@ -52,7 +52,7 @@ func TestList(t *testing.T) {
 		{
 			name:     "все детали без фильтра, сортировка по имени",
 			uuids:    nil,
-			partType: inventoryv1.PartType_PART_TYPE_UNSPECIFIED,
+			partType: model.PartTypeUnspecified,
 			setupMock: func(repo *mocks.PartRepository) {
 				repo.EXPECT().
 					ListAllParts(mock.Anything).
@@ -64,10 +64,10 @@ func TestList(t *testing.T) {
 		{
 			name:     "фильтр по типу детали",
 			uuids:    nil,
-			partType: inventoryv1.PartType_PART_TYPE_HULL,
+			partType: model.PartTypeHull,
 			setupMock: func(repo *mocks.PartRepository) {
 				repo.EXPECT().
-					ListPartsByPartType(mock.Anything, inventoryv1.PartType_PART_TYPE_HULL).
+					ListPartsByPartType(mock.Anything, model.PartTypeHull).
 					Return([]record.Part{hullPart}, nil)
 			},
 			wantErr:   nil,
@@ -76,7 +76,7 @@ func TestList(t *testing.T) {
 		{
 			name:     "фильтр по списку uuid",
 			uuids:    []string{hullUUID.String()},
-			partType: inventoryv1.PartType_PART_TYPE_UNSPECIFIED,
+			partType: model.PartTypeUnspecified,
 			setupMock: func(repo *mocks.PartRepository) {
 				repo.EXPECT().
 					ListPartsByUuids(mock.Anything, []uuid.UUID{hullUUID}).
@@ -88,14 +88,14 @@ func TestList(t *testing.T) {
 		{
 			name:      "неверный формат uuid в фильтре",
 			uuids:     []string{"не-uuid"},
-			partType:  inventoryv1.PartType_PART_TYPE_UNSPECIFIED,
+			partType:  model.PartTypeUnspecified,
 			setupMock: func(_ *mocks.PartRepository) {},
 			wantErr:   errs.ErrInvalidFormat,
 		},
 		{
 			name:     "одна из деталей не найдена",
 			uuids:    []string{hullUUID.String()},
-			partType: inventoryv1.PartType_PART_TYPE_UNSPECIFIED,
+			partType: model.PartTypeUnspecified,
 			setupMock: func(repo *mocks.PartRepository) {
 				repo.EXPECT().
 					ListPartsByUuids(mock.Anything, []uuid.UUID{hullUUID}).
@@ -106,7 +106,7 @@ func TestList(t *testing.T) {
 		{
 			name:     "ошибка репозитория",
 			uuids:    nil,
-			partType: inventoryv1.PartType_PART_TYPE_UNSPECIFIED,
+			partType: model.PartTypeUnspecified,
 			setupMock: func(repo *mocks.PartRepository) {
 				repo.EXPECT().
 					ListAllParts(mock.Anything).

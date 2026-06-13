@@ -5,15 +5,15 @@ import (
 
 	"github.com/google/uuid"
 
-	inventoryv1 "github.com/1mpuser/shared/pkg/proto/inventory/v1"
+	"github.com/1mpuser/inventory/internal/model"
 )
 
 type Part struct {
 	UUID          uuid.UUID
 	Name          string
 	Description   string
-	Price         int64                // в копейках
-	PartType      inventoryv1.PartType `db:"part_type"`
-	StockQuantity int64                `db:"stock_quantity"`
-	CreatedAt     time.Time            `db:"created_at"`
+	Price         int64          // в копейках
+	PartType      model.PartType `db:"part_type"`
+	StockQuantity int64          `db:"stock_quantity"`
+	CreatedAt     time.Time      `db:"created_at"`
 }

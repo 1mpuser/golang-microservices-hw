@@ -12,9 +12,9 @@ import (
 )
 
 type OrderRepository interface {
-	Create(_ context.Context, order record.Order) error
+	Create(_ context.Context, order record.Order, orderItems []record.OrderItem) error
 	Pay(_ context.Context, orderId uuid.UUID, paymentMethod model.PaymentMethod, transactionId uuid.UUID) error
-	Get(_ context.Context, id uuid.UUID) (record.Order, error)
+	Get(_ context.Context, id uuid.UUID) (*record.Order, error)
 	Delete(_ context.Context, orderUuid uuid.UUID) error
 }
 

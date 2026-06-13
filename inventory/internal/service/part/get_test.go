@@ -11,10 +11,10 @@ import (
 	"github.com/stretchr/testify/require"
 
 	errs "github.com/1mpuser/inventory/internal/errors"
+	"github.com/1mpuser/inventory/internal/model"
 	"github.com/1mpuser/inventory/internal/repository/record"
 	partService "github.com/1mpuser/inventory/internal/service/part"
 	"github.com/1mpuser/inventory/internal/service/part/mocks"
-	inventoryv1 "github.com/1mpuser/shared/pkg/proto/inventory/v1"
 )
 
 func TestGet(t *testing.T) {
@@ -31,7 +31,7 @@ func TestGet(t *testing.T) {
 			UUID:          partUUID,
 			Name:          "Алюминиевый корпус",
 			Price:         500000,
-			PartType:      inventoryv1.PartType_PART_TYPE_HULL,
+			PartType:      model.PartTypeHull,
 			StockQuantity: 10,
 		}
 	)

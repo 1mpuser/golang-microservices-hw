@@ -2,8 +2,16 @@ package model
 
 import (
 	"time"
+)
 
-	inventoryv1 "github.com/1mpuser/shared/pkg/proto/inventory/v1"
+type PartType string
+
+const (
+	PartTypeUnspecified PartType = ""
+	PartTypeHull        PartType = "HULL"
+	PartTypeEngine      PartType = "ENGINE"
+	PartTypeShield      PartType = "SHIELD"
+	PartTypeWeapon      PartType = "WEAPON"
 )
 
 type Part struct {
@@ -11,7 +19,7 @@ type Part struct {
 	Name          string
 	Description   string
 	Price         int64 // в копейках
-	PartType      inventoryv1.PartType
+	PartType      PartType
 	StockQuantity int64
 	CreatedAt     *time.Time
 }
