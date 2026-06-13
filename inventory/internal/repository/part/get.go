@@ -4,22 +4,27 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 
 	errs "github.com/1mpuser/inventory/internal/errors"
-	"github.com/1mpuser/inventory/internal/model"
-	"github.com/1mpuser/inventory/internal/repository/convertor"
+	"github.com/1mpuser/inventory/internal/repository/record"
 )
 
-func (r *repository) Get(_ context.Context, uuid uuid.UUID) (model.Part, error) {
-	r.mu.RLock()
+func (r *repository) Get(ctx context.Context, uuid uuid.UUID) (record.Part, error) {
 
-	defer r.mu.RUnlock()
+	const query = "SELECT * from parts where id = $1"
 
-	part, ok := r.data[uuid]
+	row, err := r.pool.Query(ctx, query, uuid)
 
-	if !ok {
-		return model.Part{}, errs.ErrPartNotFound
+	if err != nil {
+		return record.Part{}, errs.ErrPartNotFound
 	}
 
-	return convertor.PartToModel(part), nil
+	part, err := pgx.CollectExactlyOneRow(row, pgx.RowToStructByName[record.Part])
+
+	if err != nil {
+		return record.Part{}, errs.ErrPartNotFound
+	}
+
+	return part, nil
 }

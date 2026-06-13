@@ -10,7 +10,7 @@ package mocks
 import (
 	"context"
 
-	"github.com/1mpuser/inventory/internal/model"
+	"github.com/1mpuser/inventory/internal/repository/record"
 	"github.com/1mpuser/shared/pkg/proto/inventory/v1"
 	"github.com/google/uuid"
 	mock "github.com/stretchr/testify/mock"
@@ -44,22 +44,22 @@ func (_m *PartRepository) EXPECT() *PartRepository_Expecter {
 }
 
 // Get provides a mock function for the type PartRepository
-func (_mock *PartRepository) Get(ctx context.Context, uuid1 uuid.UUID) (model.Part, error) {
+func (_mock *PartRepository) Get(ctx context.Context, uuid1 uuid.UUID) (record.Part, error) {
 	ret := _mock.Called(ctx, uuid1)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
-	var r0 model.Part
+	var r0 record.Part
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) (model.Part, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) (record.Part, error)); ok {
 		return returnFunc(ctx, uuid1)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) model.Part); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uuid.UUID) record.Part); ok {
 		r0 = returnFunc(ctx, uuid1)
 	} else {
-		r0 = ret.Get(0).(model.Part)
+		r0 = ret.Get(0).(record.Part)
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
 		r1 = returnFunc(ctx, uuid1)
@@ -99,34 +99,96 @@ func (_c *PartRepository_Get_Call) Run(run func(ctx context.Context, uuid1 uuid.
 	return _c
 }
 
-func (_c *PartRepository_Get_Call) Return(part model.Part, err error) *PartRepository_Get_Call {
+func (_c *PartRepository_Get_Call) Return(part record.Part, err error) *PartRepository_Get_Call {
 	_c.Call.Return(part, err)
 	return _c
 }
 
-func (_c *PartRepository_Get_Call) RunAndReturn(run func(ctx context.Context, uuid1 uuid.UUID) (model.Part, error)) *PartRepository_Get_Call {
+func (_c *PartRepository_Get_Call) RunAndReturn(run func(ctx context.Context, uuid1 uuid.UUID) (record.Part, error)) *PartRepository_Get_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListAllParts provides a mock function for the type PartRepository
+func (_mock *PartRepository) ListAllParts(ctx context.Context) ([]record.Part, error) {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListAllParts")
+	}
+
+	var r0 []record.Part
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) ([]record.Part, error)); ok {
+		return returnFunc(ctx)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context) []record.Part); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]record.Part)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = returnFunc(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// PartRepository_ListAllParts_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListAllParts'
+type PartRepository_ListAllParts_Call struct {
+	*mock.Call
+}
+
+// ListAllParts is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *PartRepository_Expecter) ListAllParts(ctx interface{}) *PartRepository_ListAllParts_Call {
+	return &PartRepository_ListAllParts_Call{Call: _e.mock.On("ListAllParts", ctx)}
+}
+
+func (_c *PartRepository_ListAllParts_Call) Run(run func(ctx context.Context)) *PartRepository_ListAllParts_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *PartRepository_ListAllParts_Call) Return(parts []record.Part, err error) *PartRepository_ListAllParts_Call {
+	_c.Call.Return(parts, err)
+	return _c
+}
+
+func (_c *PartRepository_ListAllParts_Call) RunAndReturn(run func(ctx context.Context) ([]record.Part, error)) *PartRepository_ListAllParts_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // ListPartsByPartType provides a mock function for the type PartRepository
-func (_mock *PartRepository) ListPartsByPartType(ctx context.Context, partType inventoryv1.PartType) ([]model.Part, error) {
+func (_mock *PartRepository) ListPartsByPartType(ctx context.Context, partType inventoryv1.PartType) ([]record.Part, error) {
 	ret := _mock.Called(ctx, partType)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListPartsByPartType")
 	}
 
-	var r0 []model.Part
+	var r0 []record.Part
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, inventoryv1.PartType) ([]model.Part, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, inventoryv1.PartType) ([]record.Part, error)); ok {
 		return returnFunc(ctx, partType)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, inventoryv1.PartType) []model.Part); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, inventoryv1.PartType) []record.Part); ok {
 		r0 = returnFunc(ctx, partType)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]model.Part)
+			r0 = ret.Get(0).([]record.Part)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, inventoryv1.PartType) error); ok {
@@ -167,34 +229,34 @@ func (_c *PartRepository_ListPartsByPartType_Call) Run(run func(ctx context.Cont
 	return _c
 }
 
-func (_c *PartRepository_ListPartsByPartType_Call) Return(parts []model.Part, err error) *PartRepository_ListPartsByPartType_Call {
+func (_c *PartRepository_ListPartsByPartType_Call) Return(parts []record.Part, err error) *PartRepository_ListPartsByPartType_Call {
 	_c.Call.Return(parts, err)
 	return _c
 }
 
-func (_c *PartRepository_ListPartsByPartType_Call) RunAndReturn(run func(ctx context.Context, partType inventoryv1.PartType) ([]model.Part, error)) *PartRepository_ListPartsByPartType_Call {
+func (_c *PartRepository_ListPartsByPartType_Call) RunAndReturn(run func(ctx context.Context, partType inventoryv1.PartType) ([]record.Part, error)) *PartRepository_ListPartsByPartType_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // ListPartsByUuids provides a mock function for the type PartRepository
-func (_mock *PartRepository) ListPartsByUuids(ctx context.Context, uuids []uuid.UUID) ([]model.Part, error) {
+func (_mock *PartRepository) ListPartsByUuids(ctx context.Context, uuids []uuid.UUID) ([]record.Part, error) {
 	ret := _mock.Called(ctx, uuids)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListPartsByUuids")
 	}
 
-	var r0 []model.Part
+	var r0 []record.Part
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, []uuid.UUID) ([]model.Part, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, []uuid.UUID) ([]record.Part, error)); ok {
 		return returnFunc(ctx, uuids)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, []uuid.UUID) []model.Part); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, []uuid.UUID) []record.Part); ok {
 		r0 = returnFunc(ctx, uuids)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]model.Part)
+			r0 = ret.Get(0).([]record.Part)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, []uuid.UUID) error); ok {
@@ -235,12 +297,12 @@ func (_c *PartRepository_ListPartsByUuids_Call) Run(run func(ctx context.Context
 	return _c
 }
 
-func (_c *PartRepository_ListPartsByUuids_Call) Return(parts []model.Part, err error) *PartRepository_ListPartsByUuids_Call {
+func (_c *PartRepository_ListPartsByUuids_Call) Return(parts []record.Part, err error) *PartRepository_ListPartsByUuids_Call {
 	_c.Call.Return(parts, err)
 	return _c
 }
 
-func (_c *PartRepository_ListPartsByUuids_Call) RunAndReturn(run func(ctx context.Context, uuids []uuid.UUID) ([]model.Part, error)) *PartRepository_ListPartsByUuids_Call {
+func (_c *PartRepository_ListPartsByUuids_Call) RunAndReturn(run func(ctx context.Context, uuids []uuid.UUID) ([]record.Part, error)) *PartRepository_ListPartsByUuids_Call {
 	_c.Call.Return(run)
 	return _c
 }

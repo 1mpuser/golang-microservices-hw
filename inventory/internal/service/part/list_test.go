@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	errs "github.com/1mpuser/inventory/internal/errors"
-	"github.com/1mpuser/inventory/internal/model"
+	"github.com/1mpuser/inventory/internal/repository/record"
 	partService "github.com/1mpuser/inventory/internal/service/part"
 	"github.com/1mpuser/inventory/internal/service/part/mocks"
 	inventoryv1 "github.com/1mpuser/shared/pkg/proto/inventory/v1"
@@ -28,14 +28,14 @@ func TestList(t *testing.T) {
 
 		errRepo = errors.New("ошибка хранилища")
 
-		hullPart = model.Part{
-			UUID:     hullUUID.String(),
+		hullPart = record.Part{
+			UUID:     hullUUID,
 			Name:     "Титановый корпус",
 			PartType: inventoryv1.PartType_PART_TYPE_HULL,
 		}
 
-		enginePart = model.Part{
-			UUID:     engineUUID.String(),
+		enginePart = record.Part{
+			UUID:     engineUUID,
 			Name:     "Алюминиевый корпус",
 			PartType: inventoryv1.PartType_PART_TYPE_HULL,
 		}
@@ -55,8 +55,8 @@ func TestList(t *testing.T) {
 			partType: inventoryv1.PartType_PART_TYPE_UNSPECIFIED,
 			setupMock: func(repo *mocks.PartRepository) {
 				repo.EXPECT().
-					ListPartsByPartType(mock.Anything, inventoryv1.PartType_PART_TYPE_UNSPECIFIED).
-					Return([]model.Part{hullPart, enginePart}, nil)
+					ListAllParts(mock.Anything).
+					Return([]record.Part{hullPart, enginePart}, nil)
 			},
 			wantErr:   nil,
 			wantNames: []string{"Алюминиевый корпус", "Титановый корпус"},
@@ -68,7 +68,7 @@ func TestList(t *testing.T) {
 			setupMock: func(repo *mocks.PartRepository) {
 				repo.EXPECT().
 					ListPartsByPartType(mock.Anything, inventoryv1.PartType_PART_TYPE_HULL).
-					Return([]model.Part{hullPart}, nil)
+					Return([]record.Part{hullPart}, nil)
 			},
 			wantErr:   nil,
 			wantNames: []string{"Титановый корпус"},
@@ -80,7 +80,7 @@ func TestList(t *testing.T) {
 			setupMock: func(repo *mocks.PartRepository) {
 				repo.EXPECT().
 					ListPartsByUuids(mock.Anything, []uuid.UUID{hullUUID}).
-					Return([]model.Part{hullPart}, nil)
+					Return([]record.Part{hullPart}, nil)
 			},
 			wantErr:   nil,
 			wantNames: []string{"Титановый корпус"},
@@ -109,7 +109,7 @@ func TestList(t *testing.T) {
 			partType: inventoryv1.PartType_PART_TYPE_UNSPECIFIED,
 			setupMock: func(repo *mocks.PartRepository) {
 				repo.EXPECT().
-					ListPartsByPartType(mock.Anything, inventoryv1.PartType_PART_TYPE_UNSPECIFIED).
+					ListAllParts(mock.Anything).
 					Return(nil, errRepo)
 			},
 			wantErr: errRepo,

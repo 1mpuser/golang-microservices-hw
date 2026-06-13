@@ -17,6 +17,7 @@ import (
 	partRepository "github.com/1mpuser/inventory/internal/repository/part"
 	partService "github.com/1mpuser/inventory/internal/service/part"
 	inventoryv1 "github.com/1mpuser/shared/pkg/proto/inventory/v1"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 const (
@@ -53,7 +54,24 @@ func main() {
 		}),
 	)
 
-	repo := partRepository.NewRepository()
+	dbURI := os.Getenv("DB_URI")
+
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	pool, err := pgxpool.New(ctx, dbURI)
+
+	if err != nil {
+		slog.Error("не удалось подключиться к базе данных", "error", err)
+		if closeErr := lis.Close(); closeErr != nil {
+			slog.Error("ошибка закрытия listener", "error", closeErr)
+		}
+		os.Exit(1)
+	}
+
+	defer pool.Close()
+
+	repo := partRepository.NewRepository(pool)
 	service := partService.NewService(repo)
 	api := inventoryAPI.NewAPI(service)
 
@@ -62,9 +80,6 @@ func main() {
 	reflection.Register(grpcServer)
 
 	slog.Info("запуск InventoryService", "адрес", grpcAddress)
-
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
-	defer stop()
 
 	go func() {
 		if err := grpcServer.Serve(lis); err != nil {

@@ -4,44 +4,60 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 
-	errs "github.com/1mpuser/inventory/internal/errors"
-	"github.com/1mpuser/inventory/internal/model"
-	"github.com/1mpuser/inventory/internal/repository/convertor"
+	"github.com/1mpuser/inventory/internal/repository/record"
 	inventoryv1 "github.com/1mpuser/shared/pkg/proto/inventory/v1"
 )
 
-func (r *repository) ListPartsByUuids(_ context.Context, uuids []uuid.UUID) ([]model.Part, error) {
-	parts := make([]model.Part, 0, len(uuids))
+func (r *repository) ListPartsByUuids(ctx context.Context, uuids []uuid.UUID) ([]record.Part, error) {
 
-	r.mu.RLock()
-	defer r.mu.RUnlock()
+	const query = "SELECT * from parts where uuid = ANY($1)"
 
-	for _, id := range uuids {
-		part, ok := r.data[id]
+	rows, err := r.pool.Query(ctx, query, uuids)
 
-		if !ok {
-			return nil, errs.ErrPartNotFound
-		}
+	if err != nil {
+		return nil, err
+	}
 
-		parts = append(parts, convertor.PartToModel(part))
+	parts, err := pgx.CollectRows(rows, pgx.RowToStructByName[record.Part])
 
+	if err != nil {
+		return nil, err
 	}
 
 	return parts, nil
 }
 
-func (r *repository) ListPartsByPartType(_ context.Context, partType inventoryv1.PartType) ([]model.Part, error) {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
+func (r *repository) ListPartsByPartType(ctx context.Context, partType inventoryv1.PartType) ([]record.Part, error) {
 
-	parts := make([]model.Part, 0)
+	const query = "SELECT * FROM parts where part_type = $1"
 
-	for _, part := range r.data {
-		if partType == inventoryv1.PartType_PART_TYPE_UNSPECIFIED || partType == part.PartType {
-			parts = append(parts, convertor.PartToModel(part))
-		}
+	rows, err := r.pool.Query(ctx, query, partType)
+
+	if err != nil {
+		return nil, err
+	}
+
+	parts, err := pgx.CollectRows(rows, pgx.RowToStructByName[record.Part])
+
+	if err != nil {
+		return nil, err
 	}
 
 	return parts, nil
+
+}
+
+func (r *repository) ListAllParts(ctx context.Context) ([]record.Part, error) {
+	const query = "SELECT * FROM parts"
+
+	rows, err := r.pool.Query(ctx, query)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return pgx.CollectRows(rows, pgx.RowToStructByName[record.Part])
+
 }

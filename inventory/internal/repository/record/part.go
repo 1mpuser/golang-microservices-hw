@@ -12,8 +12,8 @@ type Part struct {
 	UUID          uuid.UUID
 	Name          string
 	Description   string
-	Price         int64 // в копейках
-	PartType      inventoryv1.PartType
-	StockQuantity int64
-	CreatedAt     time.Time
+	Price         int64                // в копейках
+	PartType      inventoryv1.PartType `db:"part_type"`
+	StockQuantity int64                `db:"stock_quantity"`
+	CreatedAt     time.Time            `db:"created_at"`
 }
