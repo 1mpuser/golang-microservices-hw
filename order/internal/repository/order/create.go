@@ -17,7 +17,8 @@ func (r *repository) Create(ctx context.Context, order record.Order, orderItems 
 		VALUES ($1, $2, $3, $4, $5, $6)
 	`
 
-	_, err := conn.Exec(ctx, insertOrderQuery,
+	_, err := conn.Exec(
+		ctx, insertOrderQuery,
 		order.OrderUUID,
 		order.TotalPrice,
 		order.Status,

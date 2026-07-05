@@ -29,14 +29,9 @@ func TestCreate(t *testing.T) {
 
 		errRepo = errors.New("ошибка хранилища")
 
-		partsInStock = []model.Part{
+		parts = []model.Part{
 			{UUID: hullUUID.String(), Name: "Hull", Price: 500000, PartType: model.PartTypeHull, StockQuantity: 10},
 			{UUID: engineUUID.String(), Name: "Engine", Price: 300000, PartType: model.PartTypeEngine, StockQuantity: 5},
-		}
-
-		partsOutOfStock = []model.Part{
-			{UUID: hullUUID.String(), Name: "Hull", Price: 500000, PartType: model.PartTypeHull, StockQuantity: 10},
-			{UUID: engineUUID.String(), Name: "Engine", Price: 300000, PartType: model.PartTypeEngine, StockQuantity: 0},
 		}
 	)
 
@@ -55,7 +50,15 @@ func TestCreate(t *testing.T) {
 			setupMock: func(repo *mocks.OrderRepository, client *mocks.InventoryClient) {
 				client.EXPECT().
 					ListParts(mock.Anything, []string{hullUUID.String(), engineUUID.String()}).
-					Return(partsInStock, nil)
+					Return(parts, nil)
+
+				client.EXPECT().
+					ValidateCompatibility(mock.Anything, hullUUID.String(), engineUUID.String(), mock.Anything, mock.Anything).
+					Return(nil)
+
+				client.EXPECT().
+					ReserveParts(mock.Anything, mock.Anything).
+					Return(nil)
 
 				repo.EXPECT().
 					Create(mock.Anything, mock.MatchedBy(func(o record.Order) bool {
@@ -95,6 +98,23 @@ func TestCreate(t *testing.T) {
 			wantErr: errs.ErrPartNotFound,
 		},
 		{
+			name: "несовместимые детали",
+			in: input.CreateOrderInput{
+				HullUUID:   hullUUID,
+				EngineUUID: engineUUID,
+			},
+			setupMock: func(_ *mocks.OrderRepository, client *mocks.InventoryClient) {
+				client.EXPECT().
+					ListParts(mock.Anything, []string{hullUUID.String(), engineUUID.String()}).
+					Return(parts, nil)
+
+				client.EXPECT().
+					ValidateCompatibility(mock.Anything, hullUUID.String(), engineUUID.String(), mock.Anything, mock.Anything).
+					Return(errs.ErrIncompatibleParts)
+			},
+			wantErr: errs.ErrIncompatibleParts,
+		},
+		{
 			name: "деталь отсутствует на складе",
 			in: input.CreateOrderInput{
 				HullUUID:   hullUUID,
@@ -103,7 +123,15 @@ func TestCreate(t *testing.T) {
 			setupMock: func(_ *mocks.OrderRepository, client *mocks.InventoryClient) {
 				client.EXPECT().
 					ListParts(mock.Anything, []string{hullUUID.String(), engineUUID.String()}).
-					Return(partsOutOfStock, nil)
+					Return(parts, nil)
+
+				client.EXPECT().
+					ValidateCompatibility(mock.Anything, hullUUID.String(), engineUUID.String(), mock.Anything, mock.Anything).
+					Return(nil)
+
+				client.EXPECT().
+					ReserveParts(mock.Anything, mock.Anything).
+					Return(errs.ErrOutOfStock)
 			},
 			wantErr: errs.ErrOutOfStock,
 		},
@@ -116,7 +144,15 @@ func TestCreate(t *testing.T) {
 			setupMock: func(repo *mocks.OrderRepository, client *mocks.InventoryClient) {
 				client.EXPECT().
 					ListParts(mock.Anything, []string{hullUUID.String(), engineUUID.String()}).
-					Return(partsInStock, nil)
+					Return(parts, nil)
+
+				client.EXPECT().
+					ValidateCompatibility(mock.Anything, hullUUID.String(), engineUUID.String(), mock.Anything, mock.Anything).
+					Return(nil)
+
+				client.EXPECT().
+					ReserveParts(mock.Anything, mock.Anything).
+					Return(nil)
 
 				repo.EXPECT().
 					Create(mock.Anything, mock.Anything, mock.Anything).

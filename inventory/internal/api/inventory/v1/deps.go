@@ -9,4 +9,7 @@ import (
 type PartService interface {
 	List(ctx context.Context, uuids []string, partType model.PartType) ([]model.Part, error)
 	Get(ctx context.Context, id string) (model.Part, error)
+	ValidateCompatibility(ctx context.Context, uuids []string) error
+	Reserve(ctx context.Context, uuids []string) error
+	Release(ctx context.Context, uuids []string) error
 }

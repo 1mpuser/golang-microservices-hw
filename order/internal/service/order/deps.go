@@ -16,14 +16,17 @@ type TxManager interface {
 }
 
 type OrderRepository interface {
-	Create(_ context.Context, order record.Order, orderItems []record.OrderItem) error
-	Pay(_ context.Context, orderId uuid.UUID, paymentMethod model.PaymentMethod, transactionId uuid.UUID) error
-	Get(_ context.Context, id uuid.UUID) (*record.Order, error)
-	Delete(_ context.Context, orderUuid uuid.UUID) error
+	Create(ctx context.Context, order record.Order, orderItems []record.OrderItem) error
+	Pay(ctx context.Context, orderId uuid.UUID, paymentMethod model.PaymentMethod, transactionId uuid.UUID) error
+	Get(ctx context.Context, id uuid.UUID) (*record.Order, error)
+	UpdateStatus(ctx context.Context, id uuid.UUID, status model.OrderStatus) error
 }
 
 type InventoryClient interface {
 	ListParts(ctx context.Context, uuids []string) ([]model.Part, error)
+	ValidateCompatibility(ctx context.Context, hullUUID, engineUUID string, shieldUUID, weaponUUID *string) error
+	ReserveParts(ctx context.Context, uuids []string) error
+	ReleaseParts(ctx context.Context, uuids []string) error
 }
 
 type PaymentClient interface {

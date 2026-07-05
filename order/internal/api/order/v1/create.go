@@ -28,9 +28,11 @@ func (a *api) CreateOrder(ctx context.Context, req *orderv1.CreateOrderRequest) 
 	result, err := a.orderService.Create(ctx, in)
 	if err != nil {
 		switch {
-		case errors.Is(err, errs.ErrInventoryPartsNotFound):
+		case errors.Is(err, errs.ErrInventoryPartsNotFound), errors.Is(err, errs.ErrPartNotFound):
 			return &orderv1.CreateOrderNotFound{Code: http.StatusNotFound, Message: err.Error()}, nil
-		case errors.Is(err, errs.ErrOutOfStock):
+		case errors.Is(err, errs.ErrInvalidUUID):
+			return &orderv1.CreateOrderBadRequest{Code: http.StatusBadRequest, Message: err.Error()}, nil
+		case errors.Is(err, errs.ErrOutOfStock), errors.Is(err, errs.ErrIncompatibleParts):
 			return &orderv1.CreateOrderConflict{Code: http.StatusConflict, Message: err.Error()}, nil
 		default:
 			return nil, err

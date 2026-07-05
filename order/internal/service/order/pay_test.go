@@ -125,6 +125,13 @@ func TestPay(t *testing.T) {
 			paymentClient := mocks.NewPaymentClient(t)
 			txManager := mocks.NewTxManager(t)
 
+			txManager.EXPECT().
+				Do(mock.Anything, mock.Anything).
+				RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+					return fn(ctx)
+				}).
+				Maybe()
+
 			tc.setupMock(orderRepo, paymentClient)
 
 			svc := orderService.NewService(txManager, orderRepo, inventoryClient, paymentClient)

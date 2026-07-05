@@ -30,13 +30,38 @@ func (s *service) Create(ctx context.Context, in input.CreateOrderInput) (*conve
 	defer cancel()
 
 	parts, err := s.inventoryClient.ListParts(ctx, uuids)
-
 	if err != nil {
 		return nil, fmt.Errorf("получить детали: %w", err)
 	}
 
 	if len(parts) == 0 {
 		return nil, errs.ErrInventoryPartsNotFound
+	}
+
+	partsIds := make([]string, len(parts))
+
+	for i := range parts {
+		partsIds[i] = parts[i].UUID
+	}
+
+	var shieldUUID, weaponUUID *string
+	if in.ShieldUUID != nil {
+		s := in.ShieldUUID.String()
+		shieldUUID = &s
+	}
+	if in.WeaponUUID != nil {
+		s := in.WeaponUUID.String()
+		weaponUUID = &s
+	}
+
+	err = s.inventoryClient.ValidateCompatibility(ctx, in.HullUUID.String(), in.EngineUUID.String(), shieldUUID, weaponUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.inventoryClient.ReserveParts(ctx, partsIds)
+	if err != nil {
+		return nil, err
 	}
 
 	var totalPrice int64 = 0
@@ -48,10 +73,6 @@ func (s *service) Create(ctx context.Context, in input.CreateOrderInput) (*conve
 	now := time.Now()
 
 	for _, part := range parts {
-		if part.StockQuantity == 0 {
-			return nil, errs.ErrOutOfStock
-		}
-
 		orderItems = append(orderItems, record.OrderItem{
 			OrderUUID: orderUUID,
 			PartUUID:  uuid.MustParse(part.UUID),
@@ -82,7 +103,6 @@ func (s *service) Create(ctx context.Context, in input.CreateOrderInput) (*conve
 	err = s.txManager.Do(ctx, func(ctx context.Context) error {
 		return s.orderRepository.Create(ctx, repositoryConvertor.ModelToRecord(order), orderItems)
 	})
-
 	if err != nil {
 		return nil, err
 	}

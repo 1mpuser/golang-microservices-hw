@@ -10,20 +10,17 @@ import (
 	"github.com/1mpuser/inventory/internal/repository/record"
 )
 
-func (r *repository) Get(ctx context.Context, uuid uuid.UUID) (record.Part, error) {
-
-	const query = "SELECT * from parts where id = $1"
+func (r *repository) Get(ctx context.Context, uuid uuid.UUID) (record.PartRecord, error) {
+	const query = "SELECT * from parts where uuid = $1"
 
 	row, err := r.pool.Query(ctx, query, uuid)
-
 	if err != nil {
-		return record.Part{}, errs.ErrPartNotFound
+		return record.PartRecord{}, errs.ErrPartNotFound
 	}
 
-	part, err := pgx.CollectExactlyOneRow(row, pgx.RowToStructByName[record.Part])
-
+	part, err := pgx.CollectExactlyOneRow(row, pgx.RowToStructByName[record.PartRecord])
 	if err != nil {
-		return record.Part{}, errs.ErrPartNotFound
+		return record.PartRecord{}, errs.ErrPartNotFound
 	}
 
 	return part, nil

@@ -17,32 +17,40 @@ func (s *service) Pay(ctx context.Context, orderUuid string, paymentMethod payme
 		return nil, errs.ErrOrderNotFound
 	}
 
-	order, err := s.orderRepository.Get(ctx, orderValidUuid)
-	if err != nil {
-		return nil, errs.ErrOrderNotFound
-	}
+	var result *converter.PayDto
 
-	switch order.Status {
-	case model.OrderStatusPaid:
-		return nil, errs.ErrOrderAlreadyPaid
-	case model.OrderStatusCancelled:
-		return nil, errs.ErrOrderCancelled
-	}
+	err = s.txManager.Do(ctx, func(ctx context.Context) error {
+		order, err := s.orderRepository.Get(ctx, orderValidUuid)
+		if err != nil {
+			return err
+		}
 
-	transaction, err := s.paymentClient.PayOrder(ctx, orderUuid, paymentMethod)
-	if err != nil {
-		return nil, err
-	}
+		switch order.Status {
+		case model.OrderStatusPaid:
+			return errs.ErrOrderAlreadyPaid
+		case model.OrderStatusCancelled:
+			return errs.ErrOrderCancelled
+		}
 
-	transactionUUID, err := uuid.Parse(transaction.TransactionUUID)
-	if err != nil {
-		return nil, err
-	}
+		transaction, err := s.paymentClient.PayOrder(ctx, orderUuid, paymentMethod)
+		if err != nil {
+			return err
+		}
 
-	err = s.orderRepository.Pay(ctx, order.OrderUUID, converter.PaymentMethodToModel(paymentMethod), transactionUUID)
-	if err != nil {
-		return nil, err
-	}
+		transactionUUID, err := uuid.Parse(transaction.TransactionUUID)
+		if err != nil {
+			return err
+		}
 
-	return converter.PayModelToDto(transactionUUID), nil
+		err = s.orderRepository.Pay(ctx, order.OrderUUID, converter.PaymentMethodToModel(paymentMethod), transactionUUID)
+		if err != nil {
+			return err
+		}
+
+		result = converter.PayModelToDto(transactionUUID)
+
+		return nil
+	})
+
+	return result, err
 }

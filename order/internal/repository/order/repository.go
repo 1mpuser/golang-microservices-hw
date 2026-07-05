@@ -12,7 +12,7 @@ type repository struct {
 
 func NewRepository(pool *pgxpool.Pool, txGetter *trmpgx.CtxGetter) *repository {
 	return &repository{
-		pool:     pool,
-		txGetter: txGetter,
+		pool,
+		txGetter,
 	}
 }

@@ -9,13 +9,18 @@ import (
 )
 
 func (r *repository) Pay(ctx context.Context, orderId uuid.UUID, paymentMethod model.PaymentMethod, transactionId uuid.UUID) error {
+	conn := r.txGetter.DefaultTrOrDB(ctx, r.pool)
+
 	const query = `
-		UPDATE orders SET payment_method = $1,
-		transaction_uuid = $2
-		WHERE uuid = $3
+		UPDATE orders
+		SET
+			payment_method = $1,
+			transaction_uuid = $2,
+			status = $3
+		WHERE uuid = $4
 	`
 
-	_, err := r.pool.Exec(ctx, query, paymentMethod, transactionId, orderId)
+	_, err := conn.Exec(ctx, query, paymentMethod, transactionId, model.OrderStatusPaid, orderId)
 
 	return err
 }

@@ -12,14 +12,17 @@ import (
 	inventoryv1 "github.com/1mpuser/shared/pkg/proto/inventory/v1"
 )
 
-func (a *api) List(ctx context.Context, req *inventoryv1.ListPartsRequest) (*inventoryv1.ListPartsResponse, error) {
+func (a *api) ListParts(ctx context.Context, req *inventoryv1.ListPartsRequest) (*inventoryv1.ListPartsResponse, error) {
 	parts, err := a.partService.List(ctx, req.Uuids, convertor.PartTypeFromProto(req.PartType))
 	if err != nil {
-		if errors.Is(err, errs.ErrPartNotFound) {
-			return nil, status.Errorf(codes.NotFound, "детали не найдена с id: %s", req.GetUuids())
+		switch {
+		case errors.Is(err, errs.ErrInvalidUUID):
+			return nil, status.Errorf(codes.InvalidArgument, "неверный формат uuid: %v", err)
+		case errors.Is(err, errs.ErrPartNotFound):
+			return nil, status.Errorf(codes.NotFound, "детали не найдены с id: %s", req.GetUuids())
+		default:
+			return nil, status.Errorf(codes.Internal, "ошибка получения деталей: %v", err)
 		}
-
-		return nil, status.Errorf(codes.Internal, "ошибка получения деталей: %v", err)
 	}
 
 	dtos := make([]*inventoryv1.Part, 0, len(parts))
