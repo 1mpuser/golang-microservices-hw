@@ -1,0 +1,18 @@
+logger:
+  level: "info"
+
+kafka:
+  brokers:
+    - "localhost:9092"
+
+order_paid_consumer:
+  topic: "order.paid"
+  group_id: "assembly-service"
+
+ship_assembled_producer:
+  topic: "ship.assembled"
+
+# Эмуляция сборки корабля
+assembler:
+  min_build_time: "5s"
+  max_build_time: "15s"

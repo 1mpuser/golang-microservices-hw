@@ -29,3 +29,8 @@ jobs:
     name: "Test Unit"
     needs: build
     uses: ./.github/workflows/test-unit.yml
+
+  test-e2e:
+    name: "Test E2E"
+    needs: build
+    uses: ./.github/workflows/test-e2e.yml

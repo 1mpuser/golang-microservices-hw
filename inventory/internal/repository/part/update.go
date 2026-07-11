@@ -49,7 +49,8 @@ func (r *repository) UpdateParts(ctx context.Context, parts []model.Part) error 
 	}
 
 	_, err := conn.Exec(
-		ctx, query,
+		ctx,
+		query,
 		uuids,
 		names,
 		descriptions,

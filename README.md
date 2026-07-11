@@ -1,7 +1,8 @@
 <!-- TODO: Замени YOUR_USERNAME на свой GitHub username и YOUR_GIST_ID на ID своего gist для coverage badge -->
+
 ![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/YOUR_USERNAME/YOUR_GIST_ID/raw/coverage.json)
 
-# Микросервисы на Go — Week 1/2
+# Микросервисы на Go
 
 Три микросервиса: `order`, `inventory`, `payment`. Архитектура слоёв — Clean Architecture
 (api → service → repository, входные/выходные адаптеры через интерфейсы).
