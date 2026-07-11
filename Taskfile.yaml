@@ -172,6 +172,12 @@ tasks:
     cmds:
       - go run ./cmd
 
+  run:assembly:
+    desc: "Запускает AssemblyService (Kafka consumer OrderPaid → producer ShipAssembled)"
+    dir: assembly
+    cmds:
+      - go run ./cmd
+
   mockery:install:
     desc: "Устанавливает mockery"
     cmds:
