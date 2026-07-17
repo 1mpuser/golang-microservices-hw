@@ -14,5 +14,16 @@ inventory_client:
 payment_client:
   address: "localhost:50052"
 
+kafka:
+  brokers:
+    - "localhost:9092"
+
+order_paid_producer:
+  topic: "order.paid"
+
+ship_assembled_consumer:
+  topic: "ship.assembled"
+  group_id: "order-service"
+
 logger:
   level: "debug"

@@ -9,6 +9,7 @@ func ModelToRecord(order model.Order) record.Order {
 	return record.Order{
 		OrderUUID:       order.OrderUUID,
 		HullUUID:        order.HullUUID,
+		UserUUID:        order.UserUUID,
 		EngineUUID:      order.EngineUUID,
 		ShieldUUID:      order.ShieldUUID,
 		WeaponUUID:      order.WeaponUUID,
@@ -24,6 +25,7 @@ func RecordToModel(order record.Order) model.Order {
 	return model.Order{
 		OrderUUID:       order.OrderUUID,
 		HullUUID:        order.HullUUID,
+		UserUUID:        order.UserUUID,
 		EngineUUID:      order.EngineUUID,
 		ShieldUUID:      order.ShieldUUID,
 		WeaponUUID:      order.WeaponUUID,

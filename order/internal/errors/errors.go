@@ -9,6 +9,7 @@ var (
 	ErrPartNotFound           = errors.New("деталь не найдена")
 	ErrOutOfStock             = errors.New("деталь отсутствует на складе")
 	ErrInventoryUnavailable   = errors.New("сервис склада недоступен")
+	ErrOrderAssembled         = errors.New("заказ уже собран")
 	ErrInventoryPartsNotFound = errors.New("на складе не найдены детали")
 	ErrIncompatibleParts      = errors.New("детали несовместимы")
 	ErrInvalidUUID            = errors.New("неверный формат UUID")

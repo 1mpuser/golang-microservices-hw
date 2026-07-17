@@ -25,15 +25,14 @@ func NewHandler(service AssemblyService) *Handler {
 // Handle реализует kafka.MessageHandler.
 func (h *Handler) Handle(ctx context.Context, msg kafka.Message) error {
 	event, err := decodeOrderPaid(msg.Value)
-
 	if err != nil {
 		return err
 	}
 
-	eventUuid := event.EventUUID
+	eventUUID := event.EventUUID
 
 	h.mu.Lock()
-	_, ok := h.seen[eventUuid]
+	_, ok := h.seen[eventUUID]
 
 	if ok {
 		h.mu.Unlock()
@@ -43,13 +42,12 @@ func (h *Handler) Handle(ctx context.Context, msg kafka.Message) error {
 	h.mu.Unlock()
 
 	err = h.service.Assemble(ctx, event)
-
 	if err != nil {
 		return err
 	}
 
 	h.mu.Lock()
-	h.seen[eventUuid] = struct{}{}
+	h.seen[eventUUID] = struct{}{}
 	h.mu.Unlock()
 
 	return nil

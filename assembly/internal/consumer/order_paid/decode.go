@@ -3,9 +3,10 @@ package orderpaid
 import (
 	"fmt"
 
+	"google.golang.org/protobuf/proto"
+
 	"github.com/1mpuser/assembly/internal/model"
 	eventsv1 "github.com/1mpuser/shared/pkg/proto/events/v1"
-	"google.golang.org/protobuf/proto"
 )
 
 func decodeOrderPaid(data []byte) (model.OrderPaid, error) {

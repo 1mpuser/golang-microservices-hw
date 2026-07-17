@@ -180,7 +180,7 @@ func TestCreate(t *testing.T) {
 
 			tc.setupMock(orderRepo, inventoryClient)
 
-			svc := orderService.NewService(txManager, orderRepo, inventoryClient, paymentClient)
+			svc := orderService.NewService(txManager, orderRepo, inventoryClient, paymentClient, mocks.NewOrderProducer(t))
 			result, err := svc.Create(ctx, tc.in)
 
 			if tc.wantErr != nil {

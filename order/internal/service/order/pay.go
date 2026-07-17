@@ -2,6 +2,7 @@ package order
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/google/uuid"
 
@@ -17,13 +18,18 @@ func (s *service) Pay(ctx context.Context, orderUuid string, paymentMethod payme
 		return nil, errs.ErrOrderNotFound
 	}
 
-	var result *converter.PayDto
+	var (
+		result   *converter.PayDto
+		userUUID uuid.UUID
+	)
 
 	err = s.txManager.Do(ctx, func(ctx context.Context) error {
-		order, err := s.orderRepository.Get(ctx, orderValidUuid)
+		order, err := s.orderRepository.GetForUpdate(ctx, orderValidUuid)
 		if err != nil {
 			return err
 		}
+
+		userUUID = order.UserUUID
 
 		switch order.Status {
 		case model.OrderStatusPaid:
@@ -51,6 +57,20 @@ func (s *service) Pay(ctx context.Context, orderUuid string, paymentMethod payme
 
 		return nil
 	})
+	if err != nil {
+		return nil, err
+	}
 
-	return result, err
+	// Транзакция закоммичена — публикуем OrderPaid уже ВНЕ транзакции:
+	// иначе при откате в Kafka ушло бы событие об оплате, которой нет в БД.
+	if pErr := s.orderProducer.ProduceOrderPaid(ctx, model.OrderPaid{
+		EventUUID: uuid.New().String(),
+		OrderUUID: orderValidUuid.String(),
+		UserUUID:  userUUID.String(),
+	}); pErr != nil {
+		// Заказ уже оплачен — не валим ответ, только логируем (outbox — за рамками ДЗ).
+		slog.ErrorContext(ctx, "не удалось опубликовать OrderPaid", "error", pErr, "order_uuid", orderValidUuid)
+	}
+
+	return result, nil
 }

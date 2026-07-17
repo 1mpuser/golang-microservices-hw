@@ -13,8 +13,8 @@ func (r *repository) Create(ctx context.Context, order record.Order, orderItems 
 	conn := r.txGetter.DefaultTrOrDB(ctx, r.pool)
 
 	const insertOrderQuery = `
-		INSERT INTO orders (uuid, total_price, status, transaction_uuid, payment_method, created_at)
-		VALUES ($1, $2, $3, $4, $5, $6)
+		INSERT INTO orders (uuid, total_price, status, transaction_uuid, payment_method, user_uuid, created_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
 	`
 
 	_, err := conn.Exec(
@@ -24,6 +24,7 @@ func (r *repository) Create(ctx context.Context, order record.Order, orderItems 
 		order.Status,
 		order.TransactionUUID,
 		order.PaymentMethod,
+		order.UserUUID,
 		order.CreatedAt,
 	)
 	if err != nil {

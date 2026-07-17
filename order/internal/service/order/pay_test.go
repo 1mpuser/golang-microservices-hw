@@ -57,7 +57,7 @@ func TestPay(t *testing.T) {
 			orderUUID: orderUUID.String(),
 			setupMock: func(repo *mocks.OrderRepository, client *mocks.PaymentClient) {
 				repo.EXPECT().
-					Get(mock.Anything, orderUUID).
+					GetForUpdate(mock.Anything, orderUUID).
 					Return(&pendingOrder, nil)
 
 				client.EXPECT().
@@ -75,7 +75,7 @@ func TestPay(t *testing.T) {
 			orderUUID: orderUUID.String(),
 			setupMock: func(repo *mocks.OrderRepository, _ *mocks.PaymentClient) {
 				repo.EXPECT().
-					Get(mock.Anything, orderUUID).
+					GetForUpdate(mock.Anything, orderUUID).
 					Return(nil, errs.ErrOrderNotFound)
 			},
 			wantErr: errs.ErrOrderNotFound,
@@ -85,7 +85,7 @@ func TestPay(t *testing.T) {
 			orderUUID: orderUUID.String(),
 			setupMock: func(repo *mocks.OrderRepository, _ *mocks.PaymentClient) {
 				repo.EXPECT().
-					Get(mock.Anything, orderUUID).
+					GetForUpdate(mock.Anything, orderUUID).
 					Return(&paidOrder, nil)
 			},
 			wantErr: errs.ErrOrderAlreadyPaid,
@@ -95,7 +95,7 @@ func TestPay(t *testing.T) {
 			orderUUID: orderUUID.String(),
 			setupMock: func(repo *mocks.OrderRepository, _ *mocks.PaymentClient) {
 				repo.EXPECT().
-					Get(mock.Anything, orderUUID).
+					GetForUpdate(mock.Anything, orderUUID).
 					Return(&cancelledOrder, nil)
 			},
 			wantErr: errs.ErrOrderCancelled,
@@ -105,7 +105,7 @@ func TestPay(t *testing.T) {
 			orderUUID: orderUUID.String(),
 			setupMock: func(repo *mocks.OrderRepository, client *mocks.PaymentClient) {
 				repo.EXPECT().
-					Get(mock.Anything, orderUUID).
+					GetForUpdate(mock.Anything, orderUUID).
 					Return(&pendingOrder, nil)
 
 				client.EXPECT().
@@ -132,9 +132,15 @@ func TestPay(t *testing.T) {
 				}).
 				Maybe()
 
+			orderProducer := mocks.NewOrderProducer(t)
+			orderProducer.EXPECT().
+				ProduceOrderPaid(mock.Anything, mock.Anything).
+				Return(nil).
+				Maybe()
+
 			tc.setupMock(orderRepo, paymentClient)
 
-			svc := orderService.NewService(txManager, orderRepo, inventoryClient, paymentClient)
+			svc := orderService.NewService(txManager, orderRepo, inventoryClient, paymentClient, orderProducer)
 			result, err := svc.Pay(ctx, tc.orderUUID, paymentv1.PaymentMethod_PAYMENT_METHOD_CARD)
 
 			if tc.wantErr != nil {

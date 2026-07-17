@@ -12,7 +12,7 @@ order_paid_consumer:
 ship_assembled_producer:
   topic: "ship.assembled"
 
-# Эмуляция сборки корабля
+# Эмуляция сборки корабля (в секундах)
 assembler:
-  min_build_time: "5s"
-  max_build_time: "15s"
+  min_build_time_sec: 5
+  max_build_time_sec: 15

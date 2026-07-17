@@ -3,12 +3,13 @@ package shipassembled
 import (
 	"context"
 
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/timestamppb"
+
 	"github.com/1mpuser/assembly/internal/model"
 	"github.com/1mpuser/platform/pkg/kafka"
 	"github.com/1mpuser/platform/pkg/kafka/producer"
 	eventsv1 "github.com/1mpuser/shared/pkg/proto/events/v1"
-	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // Producer публикует событие ShipAssembled в Kafka.
@@ -31,7 +32,6 @@ func (p *Producer) ProduceShipAssembled(ctx context.Context, event model.ShipAss
 	}
 
 	message, err := proto.Marshal(&eventMessage)
-
 	if err != nil {
 		return err
 	}

@@ -86,6 +86,7 @@ func (s *service) Create(ctx context.Context, in input.CreateOrderInput) (*conve
 
 	order := model.Order{
 		OrderUUID:  orderUUID,
+		UserUUID:   in.UserUUID,
 		HullUUID:   in.HullUUID,
 		EngineUUID: in.EngineUUID,
 		TotalPrice: totalPrice,

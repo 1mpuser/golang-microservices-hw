@@ -91,7 +91,7 @@ func TestGet(t *testing.T) {
 
 			tc.setupMock(orderRepo)
 
-			svc := orderService.NewService(txManager, orderRepo, inventoryClient, paymentClient)
+			svc := orderService.NewService(txManager, orderRepo, inventoryClient, paymentClient, mocks.NewOrderProducer(t))
 			order, err := svc.Get(ctx, tc.orderUUID)
 
 			if tc.wantErr != nil {

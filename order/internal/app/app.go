@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"net/http"
 	"os/signal"
@@ -9,6 +10,7 @@ import (
 	"time"
 
 	"github.com/1mpuser/order/internal/config"
+	assemblyConsumer "github.com/1mpuser/order/internal/consumer/assembly_consumer"
 	"github.com/1mpuser/platform/pkg/closer"
 	"github.com/1mpuser/platform/pkg/logger"
 )
@@ -19,6 +21,7 @@ const shutdownTimeout = 5 * time.Second
 type App struct {
 	di         *diContainer
 	httpServer *http.Server
+	consumer   *assemblyConsumer.Service
 }
 
 // New создаёт и инициализирует приложение.
@@ -33,10 +36,20 @@ func (a *App) Run() error {
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 
-	errCh := make(chan error, 1)
+	errCh := make(chan error, 2)
 	go func() {
 		slog.Info("запуск OrderService", "адрес", config.AppConfig().HTTP.Address())
-		if err := a.httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := a.httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			errCh <- err
+		}
+	}()
+	go func() {
+		slog.Info(
+			"запуск consumer ShipAssembled",
+			"topic", config.AppConfig().ShipAssembledConsumer.Topic,
+			"group", config.AppConfig().ShipAssembledConsumer.GroupID,
+		)
+		if err := a.consumer.RunConsumer(ctx); err != nil && !errors.Is(err, context.Canceled) {
 			errCh <- err
 		}
 	}()
@@ -67,6 +80,7 @@ func (a *App) initDeps(ctx context.Context) {
 		a.initDI,
 		a.initLogger,
 		a.initHTTPServer,
+		a.initConsumer,
 	} {
 		f(ctx)
 	}
@@ -78,6 +92,10 @@ func (a *App) initDI(_ context.Context) {
 
 func (a *App) initLogger(_ context.Context) {
 	logger.Init(config.AppConfig().Logger.Level)
+}
+
+func (a *App) initConsumer(ctx context.Context) {
+	a.consumer = a.di.ShipAssembledConsumer(ctx)
 }
 
 func (a *App) initHTTPServer(ctx context.Context) {

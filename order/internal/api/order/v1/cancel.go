@@ -16,7 +16,7 @@ func (a *api) CancelOrder(ctx context.Context, params orderv1.CancelOrderParams)
 		switch {
 		case errors.Is(err, errs.ErrOrderNotFound):
 			return &orderv1.CancelOrderNotFound{Code: http.StatusNotFound, Message: err.Error()}, nil
-		case errors.Is(err, errs.ErrOrderAlreadyPaid), errors.Is(err, errs.ErrOrderCancelled):
+		case errors.Is(err, errs.ErrOrderAlreadyPaid), errors.Is(err, errs.ErrOrderCancelled), errors.Is(err, errs.ErrOrderAssembled):
 			return &orderv1.CancelOrderConflict{Code: http.StatusConflict, Message: err.Error()}, nil
 		case errors.Is(err, errs.ErrInvalidUUID):
 			return &orderv1.CancelOrderBadRequest{Code: http.StatusBadRequest, Message: err.Error()}, nil

@@ -31,7 +31,7 @@ func (s *service) updateReserved(ctx context.Context, uuids []string, apply func
 	}
 
 	return s.txManager.Do(ctx, func(ctx context.Context) error {
-		partRecords, err := s.partRepository.ListPartsByUuids(ctx, uuidsChecked)
+		partRecords, err := s.partRepository.ListPartsForUpdate(ctx, uuidsChecked)
 		if err != nil {
 			return err
 		}

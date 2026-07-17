@@ -1,15 +1,18 @@
 package assembly
 
 // service — application-сервис сборки корабля.
-// TODO(неделя 5): при необходимости добавить зависимости (например, параметры
-// длительности сборки из config.AssemblerConfig).
 type service struct {
-	producer ShipAssembledProducer
+	producer        ShipAssembledProducer
+	minBuildSeconds int64
+	maxBuildSeconds int64
 }
 
-// NewService создаёт сервис сборки.
-func NewService(producer ShipAssembledProducer) *service {
+// NewService создаёт сервис сборки. Диапазон [minBuildSeconds, maxBuildSeconds]
+// задаёт эмулируемое время сборки (0/0 — мгновенно, для e2e-тестов).
+func NewService(producer ShipAssembledProducer, minBuildSeconds, maxBuildSeconds int64) *service {
 	return &service{
-		producer: producer,
+		producer:        producer,
+		minBuildSeconds: minBuildSeconds,
+		maxBuildSeconds: maxBuildSeconds,
 	}
 }

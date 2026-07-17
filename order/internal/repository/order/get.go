@@ -20,6 +20,7 @@ func (r *repository) Get(ctx context.Context, id uuid.UUID) (*record.Order, erro
 		o.status,
 		o.transaction_uuid,
 		o.payment_method,
+		o.user_uuid,
 		o.created_at,
 		MAX(CASE WHEN oi.part_type = 'HULL'   THEN oi.part_uuid::text END)::uuid AS hull_uuid,
 		MAX(CASE WHEN oi.part_type = 'ENGINE' THEN oi.part_uuid::text END)::uuid AS engine_uuid,
@@ -42,4 +43,20 @@ func (r *repository) Get(ctx context.Context, id uuid.UUID) (*record.Order, erro
 	}
 
 	return order, nil
+}
+
+func (r *repository) GetForUpdate(ctx context.Context, id uuid.UUID) (*record.Order, error) {
+	conn := r.txGetter.DefaultTrOrDB(ctx, r.pool)
+
+	// FOR UPDATE нельзя совмещать с GROUP BY/агрегатами, поэтому блокируем строку
+	// заказа отдельным запросом, а полные данные читаем обычным Get в той же транзакции
+	// (блокировка держится до конца транзакции).
+	const lockQuery = `SELECT 1 FROM orders WHERE uuid = $1 FOR UPDATE`
+
+	var locked int
+	if err := conn.QueryRow(ctx, lockQuery, id).Scan(&locked); err != nil {
+		return nil, errs.ErrOrderNotFound
+	}
+
+	return r.Get(ctx, id)
 }

@@ -12,6 +12,7 @@ type Order struct {
 	OrderUUID       uuid.UUID            `db:"uuid"`
 	HullUUID        uuid.UUID            `db:"hull_uuid"`
 	EngineUUID      uuid.UUID            `db:"engine_uuid"`
+	UserUUID        uuid.UUID            `db:"user_uuid"`
 	ShieldUUID      *uuid.UUID           `db:"shield_uuid"` // опциональный
 	WeaponUUID      *uuid.UUID           `db:"weapon_uuid"` // опциональный
 	TotalPrice      int64                `db:"total_price"` // в копейках

@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/IBM/sarama"
 	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
 	trmmanager "github.com/avito-tech/go-transaction-manager/trm/v2/manager"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -18,9 +19,14 @@ import (
 	inventoryGRPCClient "github.com/1mpuser/order/internal/client/grpc/inventory/v1"
 	paymentGRPCClient "github.com/1mpuser/order/internal/client/grpc/payment/v1"
 	"github.com/1mpuser/order/internal/config"
+	assemblyConsumer "github.com/1mpuser/order/internal/consumer/assembly_consumer"
+	orderProducer "github.com/1mpuser/order/internal/producer/order_producer"
 	orderRepository "github.com/1mpuser/order/internal/repository/order"
 	orderService "github.com/1mpuser/order/internal/service/order"
 	"github.com/1mpuser/platform/pkg/closer"
+	kafkaConsumer "github.com/1mpuser/platform/pkg/kafka/consumer"
+	kafkaProducer "github.com/1mpuser/platform/pkg/kafka/producer"
+	kafkamw "github.com/1mpuser/platform/pkg/middleware/kafka"
 	orderv1 "github.com/1mpuser/shared/pkg/openapi/order/v1"
 	inventoryv1 "github.com/1mpuser/shared/pkg/proto/inventory/v1"
 	paymentv1 "github.com/1mpuser/shared/pkg/proto/payment/v1"
@@ -41,6 +47,12 @@ type diContainer struct {
 	payClient     orderService.PaymentClient
 	orderSvc      orderAPIv1.OrderService
 	httpHandler   http.Handler
+
+	shipConsumerGroup sarama.ConsumerGroup
+	shipConsumer      *assemblyConsumer.Service
+
+	syncProducer  sarama.SyncProducer
+	orderProducer orderService.OrderProducer
 }
 
 func (d *diContainer) PGPool(ctx context.Context) *pgxpool.Pool {
@@ -138,6 +150,41 @@ func (d *diContainer) PaymentClient(ctx context.Context) orderService.PaymentCli
 	return d.payClient
 }
 
+// SyncProducer — sarama SyncProducer для публикации событий OrderPaid.
+func (d *diContainer) SyncProducer(_ context.Context) sarama.SyncProducer {
+	if d.syncProducer == nil {
+		cfg := sarama.NewConfig()
+		// Обязательно для SyncProducer — иначе SendMessage зависнет навсегда.
+		cfg.Producer.Return.Successes = true
+		cfg.Producer.RequiredAcks = sarama.WaitForAll
+
+		sp, err := sarama.NewSyncProducer(config.AppConfig().Kafka.Brokers, cfg)
+		if err != nil {
+			slog.Error("не удалось создать Kafka sync producer", "error", err)
+			os.Exit(1)
+		}
+
+		closer.Add("Kafka sync producer", func(_ context.Context) error {
+			return sp.Close()
+		})
+
+		d.syncProducer = sp
+	}
+	return d.syncProducer
+}
+
+// OrderPaidProducer — доменный продюсер события OrderPaid.
+func (d *diContainer) OrderPaidProducer(ctx context.Context) orderService.OrderProducer {
+	if d.orderProducer == nil {
+		platformProducer := kafkaProducer.NewProducer(
+			d.SyncProducer(ctx),
+			config.AppConfig().OrderPaidProducer.Topic,
+		)
+		d.orderProducer = orderProducer.New(platformProducer)
+	}
+	return d.orderProducer
+}
+
 func (d *diContainer) OrderService(ctx context.Context) orderAPIv1.OrderService {
 	if d.orderSvc == nil {
 		d.orderSvc = orderService.NewService(
@@ -145,9 +192,55 @@ func (d *diContainer) OrderService(ctx context.Context) orderAPIv1.OrderService 
 			d.OrderRepository(ctx),
 			d.InventoryClient(ctx),
 			d.PaymentClient(ctx),
+			d.OrderPaidProducer(ctx),
 		)
 	}
 	return d.orderSvc
+}
+
+// ShipAssembledConsumerGroup — sarama ConsumerGroup для чтения топика ShipAssembled.
+func (d *diContainer) ShipAssembledConsumerGroup(_ context.Context) sarama.ConsumerGroup {
+	if d.shipConsumerGroup == nil {
+		cfg := sarama.NewConfig()
+		// Читать с начала, если у группы ещё нет закоммиченного оффсета.
+		cfg.Consumer.Offsets.Initial = sarama.OffsetOldest
+
+		group, err := sarama.NewConsumerGroup(
+			config.AppConfig().Kafka.Brokers,
+			config.AppConfig().ShipAssembledConsumer.GroupID,
+			cfg,
+		)
+		if err != nil {
+			slog.Error("не удалось создать Kafka consumer group (ShipAssembled)", "error", err)
+			os.Exit(1)
+		}
+
+		closer.Add("Kafka consumer group (ShipAssembled)", func(_ context.Context) error {
+			return group.Close()
+		})
+
+		d.shipConsumerGroup = group
+	}
+	return d.shipConsumerGroup
+}
+
+// ShipAssembledConsumer — consumer события ShipAssembled (переводит заказ в ASSEMBLED).
+func (d *diContainer) ShipAssembledConsumer(ctx context.Context) *assemblyConsumer.Service {
+	if d.shipConsumer == nil {
+		platformConsumer := kafkaConsumer.NewConsumer(
+			d.ShipAssembledConsumerGroup(ctx),
+			[]string{config.AppConfig().ShipAssembledConsumer.Topic},
+			kafkaConsumer.WithMiddlewares(kafkamw.ConsumerLogging()),
+		)
+
+		d.shipConsumer = assemblyConsumer.NewService(
+			platformConsumer,
+			d.OrderRepository(ctx),
+			d.InventoryClient(ctx),
+			d.TxManager(ctx),
+		)
+	}
+	return d.shipConsumer
 }
 
 func (d *diContainer) HTTPHandler(ctx context.Context) http.Handler {

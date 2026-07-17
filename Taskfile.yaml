@@ -27,7 +27,7 @@ vars:
   OGEN: '{{.BIN_DIR}}/ogen'
   MOCKERY: '{{.BIN_DIR}}/mockery'
 
-  MODULES: order inventory payment
+  MODULES: order inventory payment assembly
 
   COVERAGE_DIR: '{{.ROOT_DIR}}/coverage'
   COVERAGE_FILE: '{{.COVERAGE_DIR}}/coverage.out'
@@ -103,7 +103,7 @@ tasks:
     desc: "Запускает golangci-lint"
     deps: [golangci-lint:install]
     cmds:
-      - '{{.GOLANGCI_LINT}} run --allow-parallel-runners order/... inventory/... payment/... --config=.golangci.yml'
+      - '{{.GOLANGCI_LINT}} run --allow-parallel-runners order/... inventory/... payment/... assembly/... --config=.golangci.yml'
 
   proto:format:
     desc: "Форматирует .proto-файлы (buf format)"

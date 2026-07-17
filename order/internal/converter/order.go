@@ -58,6 +58,7 @@ func PaymentMethodFromOpenAPI(paymentMethod orderv1.PaymentMethod) paymentv1.Pay
 func OrderToDTO(order model.Order) *orderv1.OrderDto {
 	dto := &orderv1.OrderDto{
 		OrderUUID:  order.OrderUUID,
+		UserUUID:   order.UserUUID,
 		HullUUID:   order.HullUUID,
 		EngineUUID: order.EngineUUID,
 		TotalPrice: order.TotalPrice,

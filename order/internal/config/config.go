@@ -10,11 +10,14 @@ import (
 
 // Config — корневая конфигурация OrderService.
 type Config struct {
-	HTTP            HTTPConfig            `yaml:"http"`
-	PG              PGConfig              `yaml:"pg"`
-	InventoryClient InventoryClientConfig `yaml:"inventory_client"`
-	PaymentClient   PaymentClientConfig   `yaml:"payment_client"`
-	Logger          LoggerConfig          `yaml:"logger"`
+	HTTP                  HTTPConfig                  `yaml:"http"`
+	PG                    PGConfig                    `yaml:"pg"`
+	InventoryClient       InventoryClientConfig       `yaml:"inventory_client"`
+	PaymentClient         PaymentClientConfig         `yaml:"payment_client"`
+	Kafka                 KafkaConfig                 `yaml:"kafka"`
+	OrderPaidProducer     OrderPaidProducerConfig     `yaml:"order_paid_producer"`
+	ShipAssembledConsumer ShipAssembledConsumerConfig `yaml:"ship_assembled_consumer"`
+	Logger                LoggerConfig                `yaml:"logger"`
 }
 
 var appConfig *Config

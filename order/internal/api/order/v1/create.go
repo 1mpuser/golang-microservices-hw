@@ -14,6 +14,7 @@ import (
 func (a *api) CreateOrder(ctx context.Context, req *orderv1.CreateOrderRequest) (orderv1.CreateOrderRes, error) {
 	in := input.CreateOrderInput{
 		HullUUID:   req.GetHullUUID(),
+		UserUUID:   req.GetUserUUID(),
 		EngineUUID: req.GetEngineUUID(),
 	}
 

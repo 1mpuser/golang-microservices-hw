@@ -70,7 +70,11 @@ func (d *diContainer) ShipAssembledProducer(ctx context.Context) *shipAssembledP
 // AssemblyService — сервис сборки корабля.
 func (d *diContainer) AssemblyService(ctx context.Context) orderPaidConsumer.AssemblyService {
 	if d.service == nil {
-		d.service = assemblyService.NewService(d.ShipAssembledProducer(ctx))
+		d.service = assemblyService.NewService(
+			d.ShipAssembledProducer(ctx),
+			config.AppConfig().Assembler.MinBuildTimeSec,
+			config.AppConfig().Assembler.MaxBuildTimeSec,
+		)
 	}
 
 	return d.service

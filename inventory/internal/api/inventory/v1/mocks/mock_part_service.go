@@ -41,6 +41,63 @@ func (_m *PartService) EXPECT() *PartService_Expecter {
 	return &PartService_Expecter{mock: &_m.Mock}
 }
 
+// Commit provides a mock function for the type PartService
+func (_mock *PartService) Commit(ctx context.Context, uuids []string) error {
+	ret := _mock.Called(ctx, uuids)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Commit")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, []string) error); ok {
+		r0 = returnFunc(ctx, uuids)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// PartService_Commit_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Commit'
+type PartService_Commit_Call struct {
+	*mock.Call
+}
+
+// Commit is a helper method to define mock.On call
+//   - ctx context.Context
+//   - uuids []string
+func (_e *PartService_Expecter) Commit(ctx interface{}, uuids interface{}) *PartService_Commit_Call {
+	return &PartService_Commit_Call{Call: _e.mock.On("Commit", ctx, uuids)}
+}
+
+func (_c *PartService_Commit_Call) Run(run func(ctx context.Context, uuids []string)) *PartService_Commit_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 []string
+		if args[1] != nil {
+			arg1 = args[1].([]string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *PartService_Commit_Call) Return(err error) *PartService_Commit_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *PartService_Commit_Call) RunAndReturn(run func(ctx context.Context, uuids []string) error) *PartService_Commit_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Get provides a mock function for the type PartService
 func (_mock *PartService) Get(ctx context.Context, id string) (model.Part, error) {
 	ret := _mock.Called(ctx, id)
@@ -177,6 +234,177 @@ func (_c *PartService_List_Call) Return(parts []model.Part, err error) *PartServ
 }
 
 func (_c *PartService_List_Call) RunAndReturn(run func(ctx context.Context, uuids []string, partType model.PartType) ([]model.Part, error)) *PartService_List_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Release provides a mock function for the type PartService
+func (_mock *PartService) Release(ctx context.Context, uuids []string) error {
+	ret := _mock.Called(ctx, uuids)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Release")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, []string) error); ok {
+		r0 = returnFunc(ctx, uuids)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// PartService_Release_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Release'
+type PartService_Release_Call struct {
+	*mock.Call
+}
+
+// Release is a helper method to define mock.On call
+//   - ctx context.Context
+//   - uuids []string
+func (_e *PartService_Expecter) Release(ctx interface{}, uuids interface{}) *PartService_Release_Call {
+	return &PartService_Release_Call{Call: _e.mock.On("Release", ctx, uuids)}
+}
+
+func (_c *PartService_Release_Call) Run(run func(ctx context.Context, uuids []string)) *PartService_Release_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 []string
+		if args[1] != nil {
+			arg1 = args[1].([]string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *PartService_Release_Call) Return(err error) *PartService_Release_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *PartService_Release_Call) RunAndReturn(run func(ctx context.Context, uuids []string) error) *PartService_Release_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Reserve provides a mock function for the type PartService
+func (_mock *PartService) Reserve(ctx context.Context, uuids []string) error {
+	ret := _mock.Called(ctx, uuids)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Reserve")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, []string) error); ok {
+		r0 = returnFunc(ctx, uuids)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// PartService_Reserve_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Reserve'
+type PartService_Reserve_Call struct {
+	*mock.Call
+}
+
+// Reserve is a helper method to define mock.On call
+//   - ctx context.Context
+//   - uuids []string
+func (_e *PartService_Expecter) Reserve(ctx interface{}, uuids interface{}) *PartService_Reserve_Call {
+	return &PartService_Reserve_Call{Call: _e.mock.On("Reserve", ctx, uuids)}
+}
+
+func (_c *PartService_Reserve_Call) Run(run func(ctx context.Context, uuids []string)) *PartService_Reserve_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 []string
+		if args[1] != nil {
+			arg1 = args[1].([]string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *PartService_Reserve_Call) Return(err error) *PartService_Reserve_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *PartService_Reserve_Call) RunAndReturn(run func(ctx context.Context, uuids []string) error) *PartService_Reserve_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ValidateCompatibility provides a mock function for the type PartService
+func (_mock *PartService) ValidateCompatibility(ctx context.Context, uuids []string) error {
+	ret := _mock.Called(ctx, uuids)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ValidateCompatibility")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, []string) error); ok {
+		r0 = returnFunc(ctx, uuids)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// PartService_ValidateCompatibility_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ValidateCompatibility'
+type PartService_ValidateCompatibility_Call struct {
+	*mock.Call
+}
+
+// ValidateCompatibility is a helper method to define mock.On call
+//   - ctx context.Context
+//   - uuids []string
+func (_e *PartService_Expecter) ValidateCompatibility(ctx interface{}, uuids interface{}) *PartService_ValidateCompatibility_Call {
+	return &PartService_ValidateCompatibility_Call{Call: _e.mock.On("ValidateCompatibility", ctx, uuids)}
+}
+
+func (_c *PartService_ValidateCompatibility_Call) Run(run func(ctx context.Context, uuids []string)) *PartService_ValidateCompatibility_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 []string
+		if args[1] != nil {
+			arg1 = args[1].([]string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *PartService_ValidateCompatibility_Call) Return(err error) *PartService_ValidateCompatibility_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *PartService_ValidateCompatibility_Call) RunAndReturn(run func(ctx context.Context, uuids []string) error) *PartService_ValidateCompatibility_Call {
 	_c.Call.Return(run)
 	return _c
 }

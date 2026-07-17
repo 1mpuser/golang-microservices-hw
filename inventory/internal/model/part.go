@@ -56,6 +56,17 @@ func (p *Part) Release(quantity int) error {
 	return nil
 }
 
+func (p *Part) Commit(quantity int) error {
+	if p.reserved < quantity || p.stockQuantity < quantity {
+		return errs.ErrNothingToCommit
+	}
+
+	p.reserved -= quantity
+	p.stockQuantity -= quantity
+
+	return nil
+}
+
 func (p *Part) UUID() string               { return p.uuid }
 func (p *Part) Description() string        { return p.description }
 func (p *Part) Name() string               { return p.name }

@@ -26,6 +26,8 @@ func (s *service) Cancel(ctx context.Context, orderUuid string) error {
 			return errs.ErrOrderAlreadyPaid
 		case model.OrderStatusCancelled:
 			return errs.ErrOrderCancelled
+		case model.OrderStatusAssembled:
+			return errs.ErrOrderAssembled
 		}
 
 		partIds := make([]string, 0)

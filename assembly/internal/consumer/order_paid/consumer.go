@@ -3,10 +3,10 @@ package orderpaid
 import (
 	"context"
 
-	"github.com/1mpuser/platform/pkg/middleware/kafka"
+	"github.com/IBM/sarama"
 
 	"github.com/1mpuser/platform/pkg/kafka/consumer"
-	"github.com/IBM/sarama"
+	"github.com/1mpuser/platform/pkg/middleware/kafka"
 )
 
 type Consumer struct {

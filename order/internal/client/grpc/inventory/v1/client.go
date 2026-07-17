@@ -74,6 +74,14 @@ func (c *client) ReleaseParts(ctx context.Context, uuids []string) error {
 	return mapInventoryError(err)
 }
 
+func (c *client) CommitParts(ctx context.Context, uuids []string) error {
+	_, err := c.grpcClient.CommitParts(ctx, &inventoryv1.CommitPartsRequest{
+		Uuids: uuids,
+	})
+
+	return mapInventoryError(err)
+}
+
 // mapInventoryError переводит gRPC-ошибки InventoryService в доменные ошибки OrderService.
 func mapInventoryError(err error) error {
 	if err == nil {

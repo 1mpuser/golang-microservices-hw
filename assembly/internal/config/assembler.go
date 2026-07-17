@@ -1,9 +1,7 @@
 package config
 
-import "time"
-
-// AssemblerConfig — параметры эмуляции сборки корабля (случайная длительность в диапазоне).
+// AssemblerConfig — параметры эмуляции сборки корабля (случайная длительность в секундах).
 type AssemblerConfig struct {
-	MinBuildTime time.Duration `yaml:"min_build_time" env:"ASSEMBLER_MIN_BUILD_TIME" env-default:"5s"`
-	MaxBuildTime time.Duration `yaml:"max_build_time" env:"ASSEMBLER_MAX_BUILD_TIME" env-default:"15s"`
+	MinBuildTimeSec int64 `yaml:"min_build_time_sec" env:"ASSEMBLER_MIN_BUILD_TIME_SEC" env-default:"5"`
+	MaxBuildTimeSec int64 `yaml:"max_build_time_sec" env:"ASSEMBLER_MAX_BUILD_TIME_SEC" env-default:"15"`
 }
