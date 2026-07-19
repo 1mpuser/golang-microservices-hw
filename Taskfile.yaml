@@ -27,6 +27,9 @@ vars:
   OGEN: '{{.BIN_DIR}}/ogen'
   MOCKERY: '{{.BIN_DIR}}/mockery'
 
+  # Неделя 6: добавь iam ПОСЛЕ создания iam/go.mod, иначе task test/test:coverage
+  # упадут на `cd iam` (каталога-модуля ещё нет):
+  #   MODULES: order inventory payment assembly iam
   MODULES: order inventory payment assembly
 
   COVERAGE_DIR: '{{.ROOT_DIR}}/coverage'
@@ -273,9 +276,11 @@ tasks:
       - task: coverage:threshold
 
   test:api:
-    desc: "Запускает API-тесты"
+    desc: "Запускает API-тесты (build-тег apitest, testcontainers)"
     cmds:
-      - go test -v ./order/tests/...
+      # Неделя 6: api-тесты помечены //go:build apitest. Когда реализуешь iam/inventory,
+      # добавь сюда ./iam/tests/... ./inventory/tests/...
+      - go test -tags apitest -v ./order/tests/...
 
   test:e2e:
     desc: "Запускает e2e-тесты order с реальной Kafka (Redpanda) через testcontainers"
@@ -337,10 +342,25 @@ tasks:
       - echo "[task] 🛑 Останавливаем Inventory с зависимостями"
       - docker compose --env-file ../../../inventory.env down --volumes
 
+  up-iam:
+    desc: "Поднять IAM сервис и все его зависимости (PostgreSQL + Redis)"
+    dir: deploy/compose/iam
+    cmds:
+      - echo "[task] 🔐 Поднимаем IAM с зависимостями (PostgreSQL + Redis)"
+      - docker compose --env-file ../../../iam.env up --build --detach
+
+  down-iam:
+    desc: "Остановить и удалить IAM сервис и все его зависимости"
+    dir: deploy/compose/iam
+    cmds:
+      - echo "[task] 🛑 Останавливаем IAM с зависимостями"
+      - docker compose --env-file ../../../iam.env down --volumes
+
   up-all:
     desc: Поднять все сервисы по очереди вместе с зависимостями
     cmds:
       - task up-core
+      - task up-iam
       - task up-inventory
       - task up-order
 
@@ -349,6 +369,7 @@ tasks:
     cmds:
       - task down-order
       - task down-inventory
+      - task down-iam
       - task down-core
 
   migrate:order:up:
@@ -390,5 +411,26 @@ tasks:
     desc: "Показывает статус миграций Inventory-сервиса"
     deps: [goose:install]
     dotenv: ['inventory.env']
+    cmds:
+      - '{{.GOOSE}} -dir $MIGRATIONS_DIR postgres "$DB_URI" status'
+
+  migrate:iam:up:
+    desc: "Применяет все миграции IAM-сервиса"
+    deps: [goose:install]
+    dotenv: ['iam.env']
+    cmds:
+      - '{{.GOOSE}} -dir $MIGRATIONS_DIR postgres "$DB_URI" up'
+
+  migrate:iam:down:
+    desc: "Откатывает последнюю миграцию IAM-сервиса"
+    deps: [goose:install]
+    dotenv: ['iam.env']
+    cmds:
+      - '{{.GOOSE}} -dir $MIGRATIONS_DIR postgres "$DB_URI" down'
+
+  migrate:iam:status:
+    desc: "Показывает статус миграций IAM-сервиса"
+    deps: [goose:install]
+    dotenv: ['iam.env']
     cmds:
       - '{{.GOOSE}} -dir $MIGRATIONS_DIR postgres "$DB_URI" status'

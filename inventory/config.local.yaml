@@ -8,5 +8,8 @@ pg:
   database: "inventory-service"
   sslmode: "disable"
 
+iam_client:
+  address: "localhost:50053"
+
 logger:
   level: "debug"
