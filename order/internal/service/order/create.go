@@ -13,10 +13,17 @@ import (
 	repositoryConvertor "github.com/1mpuser/order/internal/repository/converter"
 	"github.com/1mpuser/order/internal/repository/record"
 	"github.com/1mpuser/order/internal/service/input"
+	"github.com/1mpuser/platform/pkg/auth"
 )
 
 func (s *service) Create(ctx context.Context, in input.CreateOrderInput) (*converter.CreateModelDto, error) {
 	uuids := []string{in.HullUUID.String(), in.EngineUUID.String()}
+
+	userUUID, ok := auth.UserUUIDFromContext(ctx)
+
+	if !ok {
+		return nil, errs.ErrUnauthorized
+	}
 
 	if in.ShieldUUID != nil {
 		uuids = append(uuids, in.ShieldUUID.String())
@@ -86,7 +93,7 @@ func (s *service) Create(ctx context.Context, in input.CreateOrderInput) (*conve
 
 	order := model.Order{
 		OrderUUID:  orderUUID,
-		UserUUID:   in.UserUUID,
+		UserUUID:   userUUID,
 		HullUUID:   in.HullUUID,
 		EngineUUID: in.EngineUUID,
 		TotalPrice: totalPrice,

@@ -1,12 +1,13 @@
 package converter
 
 import (
+	"github.com/google/uuid"
+
 	"github.com/1mpuser/iam/internal/model"
 	"github.com/1mpuser/iam/internal/repository/record"
-	"github.com/google/uuid"
 )
 
-func ModelToRecord(r record.User) model.User {
+func RecordToModel(r record.User) model.User {
 	uidTrasformed := uuid.MustParse(r.UUID)
 
 	return model.User{
@@ -18,7 +19,7 @@ func ModelToRecord(r record.User) model.User {
 	}
 }
 
-func RecordToModel(m model.User) record.User {
+func ModelToRecord(m model.User) record.User {
 	return record.User{
 		UUID:         m.UUID.String(),
 		Login:        m.Login,

@@ -1,8 +1,21 @@
 package main
 
-// Реализовать (неделя 6): точка входа IAMService (по аналогии с inventory/cmd/main.go):
-//   - собрать логгер, прочитать config.local.yaml
-//   - app.New(ctx) из internal/app, запустить gRPC-сервер (AuthService + UserService)
-//   - graceful shutdown через platform/pkg/closer
+import (
+	"context"
+	"log/slog"
+
+	"github.com/joho/godotenv"
+
+	"github.com/1mpuser/iam/internal/app"
+	"github.com/1mpuser/iam/internal/config"
+)
+
 func main() {
+	_ = godotenv.Load("iam.env") //nolint:gosec // .env-файл опционален
+
+	config.MustLoad()
+
+	if err := app.New(context.Background()).Run(); err != nil {
+		slog.Error("ошибка при работе приложения", "error", err)
+	}
 }

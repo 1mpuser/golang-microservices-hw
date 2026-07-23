@@ -10,9 +10,10 @@ import (
 
 // Config — корневая конфигурация InventoryService.
 type Config struct {
-	GRPC   GRPCConfig   `yaml:"grpc"`
-	PG     PGConfig     `yaml:"pg"`
-	Logger LoggerConfig `yaml:"logger"`
+	GRPC      GRPCConfig      `yaml:"grpc"`
+	PG        PGConfig        `yaml:"pg"`
+	IAMClient IAMClientConfig `yaml:"iam_client"`
+	Logger    LoggerConfig    `yaml:"logger"`
 }
 
 var appConfig *Config

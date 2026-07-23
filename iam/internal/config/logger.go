@@ -1,3 +1,6 @@
 package config
 
-// Реализовать (неделя 6): LoggerConfig{Level}.
+// LoggerConfig — параметры логгера.
+type LoggerConfig struct {
+	Level string `yaml:"level" env:"LOG_LEVEL" env-default:"info"`
+}

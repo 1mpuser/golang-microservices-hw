@@ -47,3 +47,8 @@ packages:
   github.com/1mpuser/payment/internal/api/payment/v1:
     config:
       include-interface-regex: ".*Service"
+
+  # IAM service
+  github.com/1mpuser/iam/internal/service/iam:
+    config:
+      include-interface-regex: ".*Repository"

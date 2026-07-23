@@ -14,6 +14,7 @@ type Config struct {
 	PG                    PGConfig                    `yaml:"pg"`
 	InventoryClient       InventoryClientConfig       `yaml:"inventory_client"`
 	PaymentClient         PaymentClientConfig         `yaml:"payment_client"`
+	IAMClient             IAMClientConfig             `yaml:"iam_client"`
 	Kafka                 KafkaConfig                 `yaml:"kafka"`
 	OrderPaidProducer     OrderPaidProducerConfig     `yaml:"order_paid_producer"`
 	ShipAssembledConsumer ShipAssembledConsumerConfig `yaml:"ship_assembled_consumer"`

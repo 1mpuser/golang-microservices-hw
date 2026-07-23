@@ -16,10 +16,13 @@ import (
 	"google.golang.org/grpc/keepalive"
 
 	orderAPIv1 "github.com/1mpuser/order/internal/api/order/v1"
+	iamGRPCClient "github.com/1mpuser/order/internal/client/grpc/iam/v1"
 	inventoryGRPCClient "github.com/1mpuser/order/internal/client/grpc/inventory/v1"
 	paymentGRPCClient "github.com/1mpuser/order/internal/client/grpc/payment/v1"
 	"github.com/1mpuser/order/internal/config"
 	assemblyConsumer "github.com/1mpuser/order/internal/consumer/assembly_consumer"
+	"github.com/1mpuser/order/internal/interceptor"
+	"github.com/1mpuser/order/internal/middleware"
 	orderProducer "github.com/1mpuser/order/internal/producer/order_producer"
 	orderRepository "github.com/1mpuser/order/internal/repository/order"
 	orderService "github.com/1mpuser/order/internal/service/order"
@@ -28,6 +31,7 @@ import (
 	kafkaProducer "github.com/1mpuser/platform/pkg/kafka/producer"
 	kafkamw "github.com/1mpuser/platform/pkg/middleware/kafka"
 	orderv1 "github.com/1mpuser/shared/pkg/openapi/order/v1"
+	authv1 "github.com/1mpuser/shared/pkg/proto/auth/v1"
 	inventoryv1 "github.com/1mpuser/shared/pkg/proto/inventory/v1"
 	paymentv1 "github.com/1mpuser/shared/pkg/proto/payment/v1"
 )
@@ -47,6 +51,9 @@ type diContainer struct {
 	payClient     orderService.PaymentClient
 	orderSvc      orderAPIv1.OrderService
 	httpHandler   http.Handler
+
+	iamConn   *grpc.ClientConn
+	iamClient middleware.IAMClient
 
 	shipConsumerGroup sarama.ConsumerGroup
 	shipConsumer      *assemblyConsumer.Service
@@ -92,6 +99,7 @@ func (d *diContainer) InventoryConn(_ context.Context) *grpc.ClientConn {
 		conn, err := grpc.NewClient(
 			config.AppConfig().InventoryClient.Address,
 			grpc.WithTransportCredentials(insecure.NewCredentials()),
+			grpc.WithChainUnaryInterceptor(interceptor.SessionForwarder),
 			grpc.WithKeepaliveParams(keepalive.ClientParameters{
 				Time: grpcKeepaliveTime, Timeout: grpcKeepaliveTimeout, PermitWithoutStream: true,
 			}),
@@ -141,6 +149,13 @@ func (d *diContainer) InventoryClient(ctx context.Context) orderService.Inventor
 		d.invClient = inventoryGRPCClient.New(inventoryv1.NewInventoryServiceClient(d.InventoryConn(ctx)))
 	}
 	return d.invClient
+}
+
+func (d *diContainer) IAMClient(ctx context.Context) middleware.IAMClient {
+	if d.iamClient == nil {
+		d.iamClient = iamGRPCClient.New(authv1.NewAuthServiceClient(d.IAMConn(ctx)))
+	}
+	return d.iamClient
 }
 
 func (d *diContainer) PaymentClient(ctx context.Context) orderService.PaymentClient {
@@ -224,6 +239,27 @@ func (d *diContainer) ShipAssembledConsumerGroup(_ context.Context) sarama.Consu
 	return d.shipConsumerGroup
 }
 
+func (d *diContainer) IAMConn(_ context.Context) *grpc.ClientConn {
+	if d.iamConn == nil {
+		conn, err := grpc.NewClient(
+			config.AppConfig().IAMClient.Address,
+			grpc.WithTransportCredentials(insecure.NewCredentials()),
+			grpc.WithKeepaliveParams(keepalive.ClientParameters{
+				Time: grpcKeepaliveTime, Timeout: grpcKeepaliveTimeout, PermitWithoutStream: true,
+			}),
+		)
+		if err != nil {
+			slog.Error("не удалось подключиться к IAMService", "error", err)
+			os.Exit(1)
+		}
+		closer.Add("gRPC соединение с IAMService", func(_ context.Context) error {
+			return conn.Close()
+		})
+		d.iamConn = conn
+	}
+	return d.iamConn
+}
+
 // ShipAssembledConsumer — consumer события ShipAssembled (переводит заказ в ASSEMBLED).
 func (d *diContainer) ShipAssembledConsumer(ctx context.Context) *assemblyConsumer.Service {
 	if d.shipConsumer == nil {
@@ -251,7 +287,7 @@ func (d *diContainer) HTTPHandler(ctx context.Context) http.Handler {
 			slog.Error("не удалось создать HTTP-сервер", "error", err)
 			os.Exit(1)
 		}
-		d.httpHandler = handler
+		d.httpHandler = middleware.NewAuth(d.IAMClient(ctx))(handler)
 	}
 	return d.httpHandler
 }

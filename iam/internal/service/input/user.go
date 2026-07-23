@@ -1,5 +1,13 @@
 package input
 
-// Реализовать (неделя 6): входные типы сервисного слоя (валидированные, приходят из API):
-//   type RegisterInput struct { Login, Password string }
-//   type LoginInput    struct { Login, Password string }
+// RegisterInput — валидированный вход метода Register (пришёл из API-слоя).
+type RegisterInput struct {
+	Login    string
+	Password string
+}
+
+// LoginInput — валидированный вход метода Login (пришёл из API-слоя).
+type LoginInput struct {
+	Login    string
+	Password string
+}

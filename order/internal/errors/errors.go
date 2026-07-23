@@ -14,4 +14,5 @@ var (
 	ErrIncompatibleParts      = errors.New("детали несовместимы")
 	ErrInvalidUUID            = errors.New("неверный формат UUID")
 	ErrInvalidPaymentMethod   = errors.New("неверный метод оплаты")
+	ErrUnauthorized           = errors.New("пользователь не авторизован")
 )

@@ -10,6 +10,7 @@ require (
 )
 
 require (
+	github.com/1mpuser/shared v0.0.0-00010101000000-000000000000
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/eapache/go-resiliency v1.7.0 // indirect

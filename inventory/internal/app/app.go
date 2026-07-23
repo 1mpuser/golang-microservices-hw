@@ -106,6 +106,7 @@ func (a *App) initListener(_ context.Context) {
 
 func (a *App) initGRPCServer(ctx context.Context) {
 	a.grpcServer = grpc.NewServer(
+		grpc.ChainUnaryInterceptor(a.di.AuthInterceptor(ctx)),
 		grpc.KeepaliveParams(keepalive.ServerParameters{
 			MaxConnectionIdle:     grpcMaxConnectionIdle,
 			MaxConnectionAge:      grpcMaxConnectionAge,

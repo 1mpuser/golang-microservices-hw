@@ -3,9 +3,10 @@ package converter
 import (
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/1mpuser/iam/internal/model"
 	redisview "github.com/1mpuser/iam/internal/repository/redis_view"
-	"github.com/google/uuid"
 )
 
 func SessionRedisViewToModel(r redisview.SessionRedisView) model.Session {
